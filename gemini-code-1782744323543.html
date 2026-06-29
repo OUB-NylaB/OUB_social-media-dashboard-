@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>OneUnited Bank - Social Command Center</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --bg-primary: #0f0f12;
+            --bg-secondary: #16161c;
+            --bg-card: #1f1f27;
+            --text-main: #ffffff;
+            --text-muted: #8e8e93;
+            --ou-burgundy: #7a1626;
+            --ou-gold: #c5a059;
+            --success: #34c759;
+            --border: #282833;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Inter', sans-serif; }
+        body { background-color: var(--bg-primary); color: var(--text-main); display: flex; min-height: 100vh; }
+        
+        .sidebar { width: 260px; background-color: var(--bg-secondary); border-right: 1px solid var(--border); padding: 2rem; display: flex; flex-direction: column; }
+        .brand { display: flex; align-items: center; gap: 10px; font-size: 1.1rem; font-weight: 700; border-bottom: 2px solid var(--ou-gold); padding-bottom: 1rem; margin-bottom: 2rem; }
+        .brand span { color: var(--ou-gold); }
+        
+        .nav-links { list-style: none; display: flex; flex-direction: column; gap: 0.5rem; }
+        .nav-links a { display: flex; align-items: center; gap: 12px; color: var(--text-muted); text-decoration: none; padding: 0.8rem; border-radius: 6px; font-size: 0.95rem; transition: 0.2s; }
+        .nav-links a:hover, .nav-links .active { background-color: var(--ou-burgundy); color: var(--text-main); }
+
+        .main-content { flex: 1; padding: 2.5rem; overflow-y: auto; }
+        header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 2.5rem; }
+        .user-profile { display: flex; align-items: center; gap: 12px; background: var(--bg-secondary); padding: 0.5rem 1rem; border-radius: 20px; border: 1px solid var(--border); }
+        .user-profile img { width: 32px; height: 32px; border-radius: 50%; border: 2px solid var(--ou-gold); }
+
+        .stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 1.5rem; margin-bottom: 2.5rem; }
+        .stat-card { background-color: var(--bg-card); padding: 1.5rem; border-radius: 10px; border: 1px solid var(--border); border-left: 4px solid var(--ou-gold); }
+        .stat-header { display: flex; justify-content: space-between; color: var(--text-muted); font-size: 0.85rem; margin-bottom: 0.75rem; font-weight: 600; text-transform: uppercase; }
+        .stat-number { font-size: 1.8rem; font-weight: 700; margin-bottom: 0.25rem; }
+        .stat-change { font-size: 0.8rem; color: var(--success); display: flex; align-items: center; gap: 4px; }
+
+        .dashboard-grid { display: grid; grid-template-columns: 1.6fr 1.4fr; gap: 1.5rem; }
+        .panel { background-color: var(--bg-card); border-radius: 10px; padding: 1.5rem; border: 1px solid var(--border); }
+        .panel-title { font-size: 1rem; font-weight: 700; margin-bottom: 1.25rem; text-transform: uppercase; color: var(--ou-gold); letter-spacing: 0.5px; }
+
+        .platform-table { width: 100%; border-collapse: collapse; text-align: left; }
+        .platform-table th, .platform-table td { padding: 14px 10px; border-bottom: 1px solid var(--border); font-size: 0.9rem; }
+        .platform-table th { color: var(--text-muted); text-transform: uppercase; font-size: 0.75rem; }
+        .platform-icon { margin-right: 8px; }
+
+        .feed-list { display: flex; flex-direction: column; gap: 1rem; }
+        .feed-item { background: var(--bg-secondary); padding: 1rem; border-radius: 6px; border-left: 3px solid var(--ou-burgundy); }
+        .feed-header { display: flex; justify-content: space-between; font-size: 0.8rem; color: var(--text-muted); margin-bottom: 0.5rem; }
+        .tag { color: var(--ou-gold); font-weight: 600; }
+    </style>
+</head>
+<body>
+
+    <div class="sidebar">
+        <div class="brand"><i class="fa-solid fa-shield-halved"></i> OneUnited <span>Social</span></div>
+        <ul class="nav-links">
+            <li><a href="#" class="active"><i class="fa-solid fa-chart-line"></i> Analytics Overview</a></li>
+            <li><a href="#"><i class="fa-solid fa-bullhorn"></i> Campaigns</a></li>
+            <li><a href="#"><i class="fa-solid fa-heart"></i> Sentiment Metrics</a></li>
+            <li><a href="#"><i class="fa-solid fa-gears"></i> Automations</a></li>
+        </ul>
+    </div>
+
+    <div class="main-content">
+        <header>
+            <div>
+                <h1>Social Media Ecosystem</h1>
+                <p style="color: var(--text-muted); font-size: 0.85rem; margin-top: 4px;">Unified brand monitoring across active corporate footprints</p>
+            </div>
+            <div class="user-profile">
+                <div style="text-align: right;">
+                    <h4 style="font-size: 0.85rem;">Marketing Admin</h4>
+                    <p style="font-size: 0.7rem; color: var(--text-muted)">OneUnited Bank Team</p>
+                </div>
+                <i class="fa-solid fa-circle-user fa-xl" style="color: var(--ou-gold)"></i>
+            </div>
+        </header>
+
+        <div class="stats-grid">
+            <div class="stat-card">
+                <div class="stat-header">Cross-Platform Reach <i class="fa-solid fa-globe"></i></div>
+                <div class="stat-number">472.3K</div>
+                <div class="stat-change"><i class="fa-solid fa-caret-up"></i> +2.4% Net New MoM</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-header">Avg Brand Engagement <i class="fa-solid fa-handshake"></i></div>
+                <div class="stat-number">4.92%</div>
+                <div class="stat-change"><i class="fa-solid fa-caret-up"></i> +0.65% Outperforming Peers</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-header">Net Net Sentiment <i class="fa-solid fa-face-smile"></i></div>
+                <div class="stat-number">94.1%</div>
+                <div class="stat-change" style="color: var(--ou-gold)"><i class="fa-solid fa-award"></i> Strong Positive</div>
+            </div>
+        </div>
+
+        <div class="dashboard-grid">
+            <div class="panel">
+                <div class="panel-title">Active Profiles Performance</div>
+                <table class="platform-table">
+                    <thead>
+                        <tr>
+                            <th>Channel</th>
+                            <th>Audience</th>
+                            <th>Core Focus Pillar</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><i class="fa-brands fa-instagram platform-icon" style="color:#e1306c"></i> Instagram</td>
+                            <td>125K+</td>
+                            <td><span class="tag">#BankBlack</span> Culture</td>
+                        </tr>
+                        <tr>
+                            <td><i class="fa-brands fa-facebook platform-icon" style="color:#1877f2"></i> Facebook</td>
+                            <td>190K+</td>
+                            <td>Community Advocacy</td>
+                        </tr>
+                        <tr>
+                            <td><i class="fa-brands fa-youtube platform-icon" style="color:#ff0000"></i> YouTube</td>
+                            <td>10.5K</td>
+                            <td>WiseOne AI & Video Podcast</td>
+                        </tr>
+                        <tr>
+                            <td><i class="fa-brands fa-linkedin platform-icon" style="color:#0077b5"></i> LinkedIn</td>
+                            <td>22K+</td>
+                            <td>Economic Leadership</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="panel">
+                <div class="panel-title">Tracked Strategic Campaigns</div>
+                <div class="feed-list">
+                    <div class="feed-item">
+                        <div class="feed-header"><span>WiseOne™ AI Launch</span><span style="color: var(--success)">Active</span></div>
+                        <p style="font-size:0.88rem;">Driving cross-platform conversations around clearing financial chaos via AI-driven wellness guardrails.</p>
+                    </div>
+                    <div class="feed-item" style="border-left-color: var(--ou-gold)">
+                        <div class="feed-header"><span>Who’s Your Ma Honey?</span><span style="color: var(--success)">Active</span></div>
+                        <p style="font-size:0.88rem;">Video-series and podcast spotlighting raw origins of economic success and community leadership.</p>
+                    </div>
+                    <div class="feed-item">
+                        <div class="feed-header"><span>#OneTransaction Journey</span><span>Monitoring</span></div>
+                        <p style="font-size:0.88rem;">Legacy core campaign focused on closing the racial wealth gap through strategic asset management steps.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+</body>
+</html>
