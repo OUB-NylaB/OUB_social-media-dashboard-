@@ -40,27 +40,25 @@
         .stat-card::before { content:''; position: absolute; left:0; top:15%; height:70%; width:4px; background: var(--ou-gold); border-radius: 0 4px 4px 0; }
         .stat-header { display: flex; justify-content: space-between; color: var(--text-muted); font-size: 0.75rem; margin-bottom: 0.5rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; }
         .stat-number { font-size: 2rem; font-weight: 700; }
+        .stat-change { font-size: 0.8rem; color: var(--success); display: flex; align-items: center; gap: 4px; margin-top: 4px; }
 
         .panel { background-color: var(--bg-card); border-radius: 10px; padding: 1.5rem; border: 1px solid var(--border); margin-bottom: 2rem; }
         .panel-title { font-size: 1rem; font-weight: 700; margin-bottom: 1.25rem; text-transform: uppercase; color: var(--ou-gold); display: flex; justify-content: space-between; align-items: center; }
 
-        /* Form Styling */
         .form-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 1rem; margin-bottom: 1rem; }
         input, select, textarea { background: var(--bg-secondary); border: 1px solid var(--border); color: #fff; padding: 0.6rem; border-radius: 6px; font-size: 0.85rem; }
         input:focus, select:focus, textarea:focus { border-color: var(--ou-gold); outline: none; }
         button { background: var(--ou-burgundy); color: #fff; border: 1px solid var(--ou-gold); padding: 0.6rem 1.5rem; border-radius: 6px; font-weight: 600; cursor: pointer; transition: 0.2s; font-size: 0.85rem; }
         button:hover { background: #911b2f; }
 
-        /* Controls */
         .controls { display: flex; gap: 1rem; margin-bottom: 1rem; align-items: center; }
         .search-box { flex: 1; position: relative; }
         .search-box input { width: 100%; padding-left: 2rem; }
         .search-box i { position: absolute; left: 0.75rem; top: 50%; transform: translateY(-50%); color: var(--text-muted); }
 
-        /* Table view setup */
         .table-wrapper { overflow-x: auto; max-height: 500px; overflow-y: auto; }
         .calendar-table { width: 100%; border-collapse: collapse; text-align: left; font-size: 0.85rem; }
-        .calendar-table th { background: var(--bg-secondary); padding: 12px; font-weight: 600; color: var(--text-muted); text-transform: uppercase; font-size: 0.75rem; sticky: top; }
+        .calendar-table th { background: var(--bg-secondary); padding: 12px; font-weight: 600; color: var(--text-muted); text-transform: uppercase; font-size: 0.75rem; position: sticky; top: 0; z-index: 10; }
         .calendar-table td { padding: 12px; border-bottom: 1px solid var(--border); vertical-align: top; max-width: 250px; }
         
         .status-pill { padding: 2px 8px; border-radius: 12px; font-size: 0.75rem; font-weight: 600; display: inline-block; }
@@ -80,34 +78,38 @@
     <div class="sidebar">
         <div class="brand"><i class="fa-solid fa-shield-halved"></i> OneUnited <span>Command</span></div>
         <ul class="nav-links">
-            <li><a href="#" class="active"><i class="fa-solid fa-chart-line"></i> Dashboard Center</a></li>
+            <li><a href="#" class="active"><i class="fa-solid fa-chart-line"></i> Command Center</a></li>
         </ul>
     </div>
 
     <div class="main-content">
         <header>
             <div>
-                <h1>Who’s Your Ma Honey? Workspace</h1>
-                <p style="color: var(--text-muted); font-size: 0.85rem; margin-top: 4px;">Dynamic verification tracking engine and publishing matrix</p>
+                <h1>Social Media Command Center</h1>
+                <p style="color: var(--text-muted); font-size: 0.85rem; margin-top: 4px;">Unified brand metrics and production deployment workflow</p>
             </div>
         </header>
 
         <div class="stats-grid">
             <div class="stat-card">
-                <div class="stat-header">Aggregated Reach (Views) <i class="fa-solid fa-eye"></i></div>
-                <div class="stat-number" id="kpi-views">0</div>
+                <div class="stat-header">Total Audience <i class="fa-solid fa-users"></i></div>
+                <div class="stat-number">642.5K</div>
+                <div class="stat-change"><i class="fa-solid fa-caret-up"></i> +4.2% Growth</div>
             </div>
             <div class="stat-card">
-                <div class="stat-header">Live Tracked Posts <i class="fa-solid fa-paper-plane"></i></div>
+                <div class="stat-header">Brand Engagement <i class="fa-solid fa-bolt"></i></div>
+                <div class="stat-number">5.8%</div>
+                <div class="stat-change"><i class="fa-solid fa-caret-up"></i> Above industry avg</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-header">Net Sentiment <i class="fa-solid fa-face-smile"></i></div>
+                <div class="stat-number">94.1%</div>
+                <div class="stat-change" style="color: var(--ou-gold)"><i class="fa-solid fa-award"></i> Highly Positive</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-header">Campaign Content Volume <i class="fa-solid fa-folder-tree"></i></div>
                 <div class="stat-number" id="kpi-total">0</div>
-            </div>
-            <div class="stat-card">
-                <div class="stat-header">Posted Live <i class="fa-solid fa-circle-check" style="color:var(--success)"></i></div>
-                <div class="stat-number" id="kpi-posted">0</div>
-            </div>
-            <div class="stat-card">
-                <div class="stat-header">Pending/Scheduled <i class="fa-solid fa-clock" style="color:var(--warning)"></i></div>
-                <div class="stat-number" id="kpi-pending">0</div>
+                <div class="stat-change" style="color: var(--success)"><span id="kpi-posted">0</span> Live Posts</div>
             </div>
         </div>
 
@@ -143,14 +145,12 @@
         </div>
 
         <div class="panel">
-            <div class="panel-title">
-                <span>Master Deployment Pipeline Matrix</span>
-            </div>
+            <div class="panel-title">Master Deployment Pipeline Matrix</div>
             
             <div class="controls">
                 <div class="search-box">
                     <i class="fa-solid fa-magnifying-glass"></i>
-                    <input type="text" id="searchBar" onkeyup="filterTable()" placeholder="Filter by custom text query, asset name, topic, hashtags...">
+                    <input type="text" id="searchBar" onkeyup="filterTable()" placeholder="Filter by keyword, tags, titles...">
                 </div>
                 <select id="statusFilter" onchange="filterTable()">
                     <option value="ALL">Show All Statuses</option>
@@ -175,18 +175,16 @@
                             <th>Reach Data</th>
                         </tr>
                     </thead>
-                    <tbody id="tableBody">
-                        </tbody>
+                    <tbody id="tableBody"></tbody>
                 </table>
             </div>
         </div>
     </div>
 
     <script>
-        // Core structural dataset compiled from your exact copy-paste data values
         let socialData = [
             { platform: "Instagram", subject: "EP 2 - QUICK CLIP 3", caption: "Ever been fired? What happens next... This week on Who’s Your Ma Honey?, we’re diving into the highs and the lows of 'you’re let go.'", status: "POSTED✅", time: "5:06 PM", date: "5/14/2026", owner: "Jay", views: 1416 },
-            { platform: "TikTok", subject: "EP 2 - QUICK CLIP 3", caption: "Ever been fired? What happens next... This week on Who’s Your Ma Honey?, we’re diving into the highs and the lows of 'you’re let go.'", status: "Scheduled", time: "4:46 PM", date: "6/29/2026", owner: "Jay", views: 20 },
+            { platform: "TikTok", subject: "EP 2 - QUICK CLIP 3", caption: "Ever been fired? What happens next...", status: "Scheduled", time: "4:46 PM", date: "6/29/2026", owner: "Jay", views: 20 },
             { platform: "YouTube", subject: "EP 2 - QUICK CLIP 3", caption: "Ever been fired? What happens next...", status: "Scheduled", time: "4:45 PM", date: "5/15/2026", owner: "Jay", views: 1882 },
             { platform: "Facebook", subject: "EP 2 - QUICK CLIP 3", caption: "Ever been fired? What happens next...", status: "POSTED✅", time: "1:07 PM", date: "5/15/2026", owner: "Jay", views: 951 },
             { platform: "LinkedIn", subject: "EP 2 - QUICK CLIP 3", caption: "Ever been fired? What happens next...", status: "Scheduled", time: "4:05 PM", date: "5/15/2026", owner: "Jay", views: 51 },
@@ -204,19 +202,8 @@
             { platform: "YouTube", subject: "Ep 2 Linear Short 2", caption: "Stop cosplaying your own life. 🎭🚫", status: "POSTED✅", time: "1:05 PM", date: "5/18/2026", owner: "Jay", views: 1075 },
             { platform: "Facebook", subject: "Ep 2 Linear Short 2", caption: "Stop cosplaying your own life. 🎭🚫", status: "POSTED✅", time: "1:08 PM", date: "5/18/2026", owner: "Jay", views: 403 },
             { platform: "Instagram", subject: "EP 2 CAROUSEL SWIPE POST", caption: "You might be measuring your success, your strength, and your story the wrong way.", status: "Canceled", time: "4:05 PM", date: "5/19/2026", owner: "Jay", views: 0 },
-            { platform: "Instagram", subject: "EP 2 - LINEAR REEL 3", caption: "People will try to trap you inside the walls of their own limitations. Guest: Karen Hunter", status: "In progress???", time: "4:05 PM", date: "5/19/2026", owner: "Jay", views: 0 },
-            { platform: "Instagram", subject: "EP 2 - QUICK CLIP 1", caption: "People will use shame as a weapon to make your world as small as theirs.", status: "Drafted???", time: "4:06 PM", date: "5/17/2026", owner: "Jay", views: 0 },
-            { platform: "Instagram", subject: "EP 3 REEL 1", caption: "I was ashamed of my gift. Adonnis Parker opens up about the years he spent lying to himself.", status: "POSTED✅", time: "6:00 PM", date: "5/21/2026", owner: "Jay", views: 702 },
-            { platform: "YouTube", subject: "EP 3 REEL 1", caption: "I was ashamed of my gift.", status: "POSTED✅", time: "8:46 PM", date: "5/21/2026", owner: "Jay", views: 1041 },
-            { platform: "Instagram", subject: "EP 3 REEL 3", caption: "They said stop painting black people. Chaz Guest.", status: "POSTED✅", time: "5:02 PM", date: "5/25/2026", owner: "Jay", views: 2916 },
-            { platform: "Facebook", subject: "EP 3 REEL 3", caption: "They said stop painting black people. Chaz Guest.", status: "POSTED✅", time: "1:15 PM", date: "5/25/2026", owner: "Jay", views: 1982 },
-            { platform: "Instagram", subject: "EP 5 REEL 1", caption: "In honor of Trayvon Martin. Sybrina Fulton.", status: "POSTED✅", time: "3:21 PM", date: "6/3/2026", owner: "Jay", views: 8326 },
-            { platform: "YouTube", subject: "EP 5 REEL 1", caption: "In honor of Trayvon Martin. Sybrina Fulton.", status: "POSTED✅", time: "3:05 PM", date: "6/3/2026", owner: "Jay", views: 9470 },
-            { platform: "Facebook", subject: "EP 6 REEL 3", caption: "What does 'NASSAU' mean? Frederica Wilson.", status: "POSTED✅", time: "4:00 PM", date: "6/12/2026", owner: "Teri", views: 26763 },
-            { platform: "Instagram", subject: "EP 6 REEL 3", caption: "What does 'NASSAU' mean? Frederica Wilson.", status: "POSTED✅", time: "4:15 PM", date: "6/12/2026", owner: "Teri", views: 11936 },
-            { platform: "Instagram", subject: "Teri Talks", caption: "Teri Talks with Teri Williams. Before you can take control of your money you need to address your shame.", status: "POSTED✅", time: "2:00 PM", date: "6/16/2026", owner: "Jay", views: 478 },
-            { platform: "Facebook", subject: "Juneteenth Flyer", caption: "In honor of Juneteenth, OneUnited Bank will observe the federal holiday on Friday, June 19th.", status: "POSTED✅", time: "11:00 AM", date: "6/17/2026", owner: "Teri/Jay", views: 3252 },
-            { platform: "Instagram", subject: "EP 8 Reel 2", caption: "Stop pretending you're nobody. Imposter syndrome is just a polite word for hiding. Felecia Hatcher.", status: "Scheduled", time: "5:50 PM", date: "6/25/2026", owner: "Jay", views: 0 }
+            { platform: "Instagram", subject: "EP 2 - LINEAR REEL 3", caption: "People will try to trap you inside the walls of their own limitations.", status: "In progress???", time: "4:05 PM", date: "5/19/2026", owner: "Jay", views: 0 },
+            { platform: "Instagram", subject: "EP 8 Reel 2", caption: "Stop pretending you're nobody. Imposter syndrome is just a polite word for hiding.", status: "Scheduled", time: "5:50 PM", date: "6/25/2026", owner: "Jay", views: 0 }
         ];
 
         function getPlatformIcon(platform) {
@@ -239,20 +226,12 @@
         }
 
         function computeKPIs() {
-            let totalViews = 0;
             let totalPosted = 0;
-            let totalPending = 0;
-
             socialData.forEach(item => {
-                totalViews += (item.views || 0);
                 if(item.status.includes('POSTED')) totalPosted++;
-                if(item.status.includes('Scheduled') || item.status.includes('progress')) totalPending++;
             });
-
-            document.getElementById('kpi-views').innerText = totalViews.toLocaleString();
             document.getElementById('kpi-total').innerText = socialData.length;
             document.getElementById('kpi-posted').innerText = totalPosted;
-            document.getElementById('kpi-pending').innerText = totalPending;
         }
 
         function renderTable() {
@@ -262,16 +241,12 @@
             socialData.forEach((item) => {
                 const row = document.createElement('tr');
                 row.innerHTML = `
-                    <td>
-                        <span class="platform-badge">${getPlatformIcon(item.platform)} ${item.platform}</span>
-                    </td>
+                    <td><span class="platform-badge">${getPlatformIcon(item.platform)} ${item.platform}</span></td>
                     <td>
                         <strong style="color:var(--ou-gold); display:block; margin-bottom:2px;">${item.subject}</strong>
-                        <div class="caption-text" title="Click to expand full copy">${item.caption}</div>
+                        <div class="caption-text">${item.caption}</div>
                     </td>
-                    <td>
-                        <span class="status-pill ${getStatusClass(item.status)}">${item.status}</span>
-                    </td>
+                    <td><span class="status-pill ${getStatusClass(item.status)}">${item.status}</span></td>
                     <td>
                         <div style="font-weight:600;">${item.date}</div>
                         <div style="color:var(--text-muted); font-size:0.75rem;">${item.time || 'N/A'}</div>
@@ -298,8 +273,7 @@
                 owner: "Jay",
                 views: parseInt(document.getElementById('formViews').value) || 0
             };
-
-            socialData.unshift(newRow); // Add to top of array
+            socialData.unshift(newRow);
             renderTable();
             document.getElementById('postForm').reset();
             document.getElementById('formDate').value = "06/29/2026";
@@ -313,19 +287,13 @@
             for (let i = 0; i < rows.length; i++) {
                 const text = rows[i].innerText.toLowerCase();
                 const statusCell = socialData[i].status;
-
                 const matchesSearch = text.includes(query);
                 const matchesStatus = (statusFilter === 'ALL') || (statusCell === statusFilter);
 
-                if (matchesSearch && matchesStatus) {
-                    rows[i].style.display = '';
-                } else {
-                    rows[i].style.display = 'none';
-                }
+                rows[i].style.display = (matchesSearch && matchesStatus) ? '' : 'none';
             }
         }
 
-        // Initialize display matrix
         window.onload = renderTable;
     </script>
 </body>
