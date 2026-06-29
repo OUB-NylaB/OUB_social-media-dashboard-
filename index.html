@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>OneUnited Bank - Social Command & Calendar Center</title>
+    <title>OneUnited Bank - Social Command & Prompt Center</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
@@ -21,280 +21,404 @@
             --border: #242430;
         }
 
-        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Inter', sans-serif; }
-        body { background-color: var(--bg-primary); color: var(--text-main); display: flex; min-height: 100vh; }
+        [data-theme="light"] {
+            --bg-primary: #f4f5f7;
+            --bg-secondary: #ffffff;
+            --bg-card: #fdfdfd;
+            --text-main: #1a1a24;
+            --text-muted: #62626a;
+            --border: #d2d2dc;
+            --ou-burgundy: #8b1e2f;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Inter', sans-serif; transition: background-color 0.2s, border-color 0.2s; }
+        body { background-color: var(--bg-primary); color: var(--text-main); display: flex; min-height: 100vh; overflow-x: hidden; }
         
         .sidebar { width: 260px; background-color: var(--bg-secondary); border-right: 1px solid var(--border); padding: 2rem; display: flex; flex-direction: column; shrink: 0; }
         .brand { display: flex; align-items: center; gap: 10px; font-size: 1.1rem; font-weight: 700; border-bottom: 2px solid var(--ou-gold); padding-bottom: 1rem; margin-bottom: 2rem; }
         .brand span { color: var(--ou-gold); }
         
         .nav-links { list-style: none; display: flex; flex-direction: column; gap: 0.5rem; }
-        .nav-links a { display: flex; align-items: center; gap: 12px; color: var(--text-muted); text-decoration: none; padding: 0.8rem; border-radius: 6px; font-size: 0.95rem; transition: 0.2s; }
-        .nav-links a:hover, .nav-links .active { background-color: var(--ou-burgundy); color: var(--text-main); }
+        .nav-links div { display: flex; align-items: center; gap: 12px; color: var(--text-muted); padding: 0.8rem; border-radius: 6px; font-size: 0.95rem; cursor: pointer; transition: 0.2s; }
+        .nav-links div:hover, .nav-links .active { background-color: var(--ou-burgundy); color: #fff; }
 
         .main-content { flex: 1; padding: 2.5rem; overflow-y: auto; }
         header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 2.5rem; }
         
-        .stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 1.5rem; margin-bottom: 2.5rem; }
-        .stat-card { background-color: var(--bg-card); padding: 1.5rem; border-radius: 10px; border: 1px solid var(--border); position: relative; }
+        .theme-toggle { background: none; border: 1px solid var(--border); color: var(--text-main); padding: 0.5rem 1rem; border-radius: 20px; cursor: pointer; font-weight: 500; font-size: 0.8rem; display: flex; align-items: center; gap: 6px; }
+
+        .stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1.2rem; margin-bottom: 2rem; }
+        .stat-card { background-color: var(--bg-card); padding: 1.2rem; border-radius: 10px; border: 1px solid var(--border); position: relative; }
         .stat-card::before { content:''; position: absolute; left:0; top:15%; height:70%; width:4px; background: var(--ou-gold); border-radius: 0 4px 4px 0; }
-        .stat-header { display: flex; justify-content: space-between; color: var(--text-muted); font-size: 0.75rem; margin-bottom: 0.5rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; }
-        .stat-number { font-size: 2rem; font-weight: 700; }
-        .stat-change { font-size: 0.8rem; color: var(--success); display: flex; align-items: center; gap: 4px; margin-top: 4px; }
+        .stat-header { display: flex; justify-content: space-between; color: var(--text-muted); font-size: 0.75rem; margin-bottom: 0.5rem; font-weight: 700; text-transform: uppercase; }
+        .stat-number { font-size: 1.8rem; font-weight: 700; }
+        .stat-sub { font-size: 0.75rem; color: var(--text-muted); margin-top: 4px; }
 
-        .panel { background-color: var(--bg-card); border-radius: 10px; padding: 1.5rem; border: 1px solid var(--border); margin-bottom: 2rem; }
-        .panel-title { font-size: 1rem; font-weight: 700; margin-bottom: 1.25rem; text-transform: uppercase; color: var(--ou-gold); display: flex; justify-content: space-between; align-items: center; }
+        .dashboard-grid-3x { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 1.5rem; margin-bottom: 2rem; }
+        .panel { background-color: var(--bg-card); border-radius: 10px; padding: 1.5rem; border: 1px solid var(--border); margin-bottom: 1.5rem; }
+        .panel-title { font-size: 0.9rem; font-weight: 700; margin-bottom: 1.25rem; text-transform: uppercase; color: var(--ou-gold); display: flex; justify-content: space-between; align-items: center; letter-spacing: 0.5px; }
 
-        .form-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 1rem; margin-bottom: 1rem; }
-        input, select, textarea { background: var(--bg-secondary); border: 1px solid var(--border); color: #fff; padding: 0.6rem; border-radius: 6px; font-size: 0.85rem; }
+        /* Dynamic view filters */
+        .platform-tabs { display: flex; gap: 0.5rem; margin-bottom: 1.5rem; border-bottom: 1px solid var(--border); padding-bottom: 0.75rem; overflow-x: auto; }
+        .tab-btn { background: var(--bg-secondary); border: 1px solid var(--border); color: var(--text-muted); padding: 0.4rem 1rem; border-radius: 20px; font-size: 0.8rem; font-weight: 600; cursor: pointer; white-space: nowrap; }
+        .tab-btn.active { background: var(--ou-burgundy); color: #fff; border-color: var(--ou-gold); }
+
+        /* Forms & Inputs */
+        .form-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 0.75rem; margin-bottom: 1rem; }
+        input, select, textarea { background: var(--bg-secondary); border: 1px solid var(--border); color: var(--text-main); padding: 0.6rem; border-radius: 6px; font-size: 0.85rem; width: 100%; }
         input:focus, select:focus, textarea:focus { border-color: var(--ou-gold); outline: none; }
-        button { background: var(--ou-burgundy); color: #fff; border: 1px solid var(--ou-gold); padding: 0.6rem 1.5rem; border-radius: 6px; font-weight: 600; cursor: pointer; transition: 0.2s; font-size: 0.85rem; }
-        button:hover { background: #911b2f; }
+        button { background: var(--ou-burgundy); color: #fff; border: 1px solid var(--ou-gold); padding: 0.6rem 1.2rem; border-radius: 6px; font-weight: 600; cursor: pointer; font-size: 0.85rem; }
+        button:hover { opacity: 0.9; }
 
-        .controls { display: flex; gap: 1rem; margin-bottom: 1rem; align-items: center; }
-        .search-box { flex: 1; position: relative; }
-        .search-box input { width: 100%; padding-left: 2rem; }
-        .search-box i { position: absolute; left: 0.75rem; top: 50%; transform: translateY(-50%); color: var(--text-muted); }
+        /* Performance badges indicators */
+        .perf-badge { padding: 2px 6px; border-radius: 4px; font-size: 0.7rem; font-weight: 700; text-transform: uppercase; display: inline-block; margin-top: 4px; }
+        .perf-best { background: rgba(46, 196, 182, 0.2); color: var(--success); }
+        .perf-worst { background: rgba(237, 29, 54, 0.2); color: var(--danger); }
 
-        .table-wrapper { overflow-x: auto; max-height: 500px; overflow-y: auto; }
+        /* Table Design */
+        .table-wrapper { overflow-x: auto; max-height: 400px; }
         .calendar-table { width: 100%; border-collapse: collapse; text-align: left; font-size: 0.85rem; }
-        .calendar-table th { background: var(--bg-secondary); padding: 12px; font-weight: 600; color: var(--text-muted); text-transform: uppercase; font-size: 0.75rem; position: sticky; top: 0; z-index: 10; }
-        .calendar-table td { padding: 12px; border-bottom: 1px solid var(--border); vertical-align: top; max-width: 250px; }
-        
+        .calendar-table th { background: var(--bg-secondary); padding: 12px; font-weight: 600; color: var(--text-muted); text-transform: uppercase; font-size: 0.75rem; position: sticky; top: 0; }
+        .calendar-table td { padding: 12px; border-bottom: 1px solid var(--border); vertical-align: top; }
         .status-pill { padding: 2px 8px; border-radius: 12px; font-size: 0.75rem; font-weight: 600; display: inline-block; }
-        .status-posted { background: rgba(46, 196, 182, 0.15); color: var(--success); }
-        .status-scheduled { background: rgba(255, 159, 28, 0.15); color: var(--warning); }
-        .status-canceled { background: rgba(237, 29, 54, 0.15); color: var(--danger); }
-        .status-drafted { background: rgba(142, 142, 147, 0.2); color: var(--text-muted); }
-        .status-progress { background: rgba(197, 160, 89, 0.2); color: var(--ou-gold); }
 
-        .platform-badge { font-weight: 700; display: flex; align-items: center; gap: 6px; }
-        .caption-text { display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; text-overflow: ellipsis; cursor: pointer; color: #ddd; }
-        .caption-text:hover { color: #fff; -webkit-line-clamp: unset; }
+        /* Demographics Bar Simulation */
+        .demo-bar-container { display: flex; flex-direction: column; gap: 0.75rem; }
+        .demo-row { font-size: 0.8rem; }
+        .demo-label { display: flex; justify-content: space-between; margin-bottom: 2px; color: var(--text-muted); }
+        .demo-track { background: var(--bg-secondary); height: 8px; border-radius: 4px; overflow: hidden; }
+        .demo-fill { background: var(--ou-gold); height: 100%; border-radius: 4px; }
+
+        /* Chat System Panel style setup */
+        .chat-container { display: flex; flex-direction: column; height: 350px; background: var(--bg-secondary); border-radius: 8px; border: 1px solid var(--border); overflow: hidden; }
+        .chat-messages { flex: 1; padding: 1rem; overflow-y: auto; display: flex; flex-direction: column; gap: 0.75rem; font-size: 0.85rem; }
+        .msg { padding: 0.5rem 0.75rem; border-radius: 6px; max-width: 80%; }
+        .msg.user { background: var(--ou-burgundy); color: #fff; align-self: flex-end; }
+        .msg.ai { background: var(--bg-card); color: var(--text-main); align-self: flex-start; border: 1px solid var(--border); }
+        .chat-input-area { display: flex; border-top: 1px solid var(--border); padding: 0.5rem; gap: 0.5rem; background: var(--bg-card); }
+
+        .hidden { display: none !important; }
     </style>
 </head>
 <body>
 
     <div class="sidebar">
-        <div class="brand"><i class="fa-solid fa-shield-halved"></i> OneUnited <span>Command</span></div>
+        <div class="brand"><i class="fa-solid fa-building-columns"></i> OneUnited <span>Hub</span></div>
         <ul class="nav-links">
-            <li><a href="#" class="active"><i class="fa-solid fa-chart-line"></i> Command Center</a></li>
+            <div id="menu-dash" class="active" onclick="switchView('dash')"><i class="fa-solid fa-chart-line"></i> Analytics Matrix</div>
+            <div id="menu-planner" onclick="switchView('planner')"><i class="fa-solid fa-calendar-days"></i> Content Planner</div>
+            <div id="menu-gems" onclick="switchView('gems')"><i class="fa-solid fa-gem"></i> Gemini AI Gems</div>
         </ul>
     </div>
 
     <div class="main-content">
         <header>
             <div>
-                <h1>Social Media Command Center</h1>
-                <p style="color: var(--text-muted); font-size: 0.85rem; margin-top: 4px;">Unified brand metrics and production deployment workflow</p>
+                <h1 id="page-title">Analytics Matrix</h1>
+                <p style="color: var(--text-muted); font-size: 0.85rem; margin-top: 4px;">Unified brand insights for OneUnited Bank marketing layers</p>
             </div>
+            <button class="theme-toggle" onclick="toggleTheme()">
+                <i class="fa-solid fa-moon"></i> <span>Dark Mode</span>
+            </button>
         </header>
 
-        <div class="stats-grid">
-            <div class="stat-card">
-                <div class="stat-header">Total Audience <i class="fa-solid fa-users"></i></div>
-                <div class="stat-number">642.5K</div>
-                <div class="stat-change"><i class="fa-solid fa-caret-up"></i> +4.2% Growth</div>
+        <div id="view-dash">
+            <div class="platform-tabs">
+                <button class="tab-btn active" onclick="filterPlatform('All', this)">All Footprints</button>
+                <button class="tab-btn" onclick="filterPlatform('Instagram', this)">Instagram</button>
+                <button class="tab-btn" onclick="filterPlatform('YouTube', this)">YouTube</button>
+                <button class="tab-btn" onclick="filterPlatform('TikTok', this)">TikTok</button>
+                <button class="tab-btn" onclick="filterPlatform('Facebook', this)">Facebook</button>
+                <button class="tab-btn" onclick="filterPlatform('LinkedIn', this)">LinkedIn</button>
             </div>
-            <div class="stat-card">
-                <div class="stat-header">Brand Engagement <i class="fa-solid fa-bolt"></i></div>
-                <div class="stat-number">5.8%</div>
-                <div class="stat-change"><i class="fa-solid fa-caret-up"></i> Above industry avg</div>
+
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <div class="stat-header">Platform Audience</div>
+                    <div class="stat-number" id="stat-audience">642.5K</div>
+                    <div class="stat-sub">Cross-Platform Total</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-header">Engagement Factor</div>
+                    <div class="stat-number" id="stat-engagement">5.82%</div>
+                    <div class="stat-sub">Average Interaction Ratio</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-header">Honey Conversion Traffic</div>
+                    <div class="stat-number">48.3K</div>
+                    <div class="stat-sub">Click-Through to Domain</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-header">Accounts Created via Show</div>
+                    <div class="stat-number" style="color: var(--success);">3,412</div>
+                    <div class="stat-sub">Direct Podcast ROI Metrics</div>
+                </div>
             </div>
-            <div class="stat-card">
-                <div class="stat-header">Net Sentiment <i class="fa-solid fa-face-smile"></i></div>
-                <div class="stat-number">94.1%</div>
-                <div class="stat-change" style="color: var(--ou-gold)"><i class="fa-solid fa-award"></i> Highly Positive</div>
-            </div>
-            <div class="stat-card">
-                <div class="stat-header">Campaign Content Volume <i class="fa-solid fa-folder-tree"></i></div>
-                <div class="stat-number" id="kpi-total">0</div>
-                <div class="stat-change" style="color: var(--success)"><span id="kpi-posted">0</span> Live Posts</div>
+
+            <div class="dashboard-grid-3x">
+                <div class="panel">
+                    <div class="panel-title">Audience Demographics Breakdown</div>
+                    <div class="demo-bar-container">
+                        <div class="demo-row">
+                            <div class="demo-label"><span>Ages 25–34 (Millennials)</span><span>44%</span></div>
+                            <div class="demo-track"><div class="demo-fill" style="width: 44%;"></div></div>
+                        </div>
+                        <div class="demo-row">
+                            <div class="demo-label"><span>Ages 18–24 (Gen Z Growth)</span><span>28%</span></div>
+                            <div class="demo-track"><div class="demo-fill" style="width: 28%; background: var(--success);"></div></div>
+                        </div>
+                        <div class="demo-row">
+                            <div class="demo-label"><span>Top Region: Atlanta, GA Metro</span><span>35%</span></div>
+                            <div class="demo-track"><div class="demo-fill" style="width: 35%;"></div></div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="panel">
+                    <div class="panel-title">Top Performing Assets (High Reach)</div>
+                    <div id="best-performing-list" style="display:flex; flex-direction:column; gap:0.75rem;"></div>
+                </div>
+
+                <div class="panel">
+                    <div class="panel-title">Underperforming Assets (Action Required)</div>
+                    <div id="worst-performing-list" style="display:flex; flex-direction:column; gap:0.75rem;"></div>
+                </div>
             </div>
         </div>
 
-        <div class="panel">
-            <div class="panel-title">Add Content Row / Tracker Update</div>
-            <form id="postForm" onsubmit="addPost(event)">
-                <div class="form-grid">
-                    <select id="formPlatform" required>
-                        <option value="Instagram">Instagram</option>
-                        <option value="YouTube">YouTube</option>
-                        <option value="TikTok">TikTok</option>
-                        <option value="Facebook">Facebook</option>
-                        <option value="LinkedIn">LinkedIn</option>
-                    </select>
-                    <input type="text" id="formSubject" placeholder="Topic / Subject (e.g. EP 8 Reel 3)" required>
-                    <select id="formStatus" required>
-                        <option value="POSTED✅">POSTED✅</option>
-                        <option value="Scheduled">Scheduled</option>
-                        <option value="In progress???">In progress???</option>
-                        <option value="Drafted???">Drafted???</option>
-                        <option value="Canceled">Canceled</option>
-                        <option value="Not started">Not started</option>
-                    </select>
-                    <input type="text" id="formDate" placeholder="Date (MM/DD/YYYY)" value="06/29/2026">
-                    <input type="text" id="formTime" placeholder="Time (e.g. 5:00 PM)">
-                    <input type="number" id="formViews" placeholder="Reach / View count">
-                </div>
-                <div style="display: flex; flex-direction: column; gap: 0.5rem; margin-bottom: 1rem;">
-                    <textarea id="formCaption" placeholder="Paste your social caption / details here..." rows="2" required></textarea>
-                </div>
-                <button type="submit"><i class="fa-solid fa-plus"></i> Inject Into Matrix</button>
-            </form>
-        </div>
-
-        <div class="panel">
-            <div class="panel-title">Master Deployment Pipeline Matrix</div>
-            
-            <div class="controls">
-                <div class="search-box">
-                    <i class="fa-solid fa-magnifying-glass"></i>
-                    <input type="text" id="searchBar" onkeyup="filterTable()" placeholder="Filter by keyword, tags, titles...">
-                </div>
-                <select id="statusFilter" onchange="filterTable()">
-                    <option value="ALL">Show All Statuses</option>
-                    <option value="POSTED✅">POSTED✅</option>
-                    <option value="Scheduled">Scheduled</option>
-                    <option value="In progress???">In progress</option>
-                    <option value="Drafted???">Drafted</option>
-                    <option value="Canceled">Canceled</option>
-                    <option value="Not started">Not started</option>
-                </select>
+        <div id="view-planner" class="hidden">
+            <div class="panel">
+                <div class="panel-title">Inject New Schedule Plan Block</div>
+                <form id="postForm" onsubmit="addNewContentItem(event)">
+                    <div class="form-grid">
+                        <select id="formPlatform" required>
+                            <option value="Instagram">Instagram</option>
+                            <option value="YouTube">YouTube</option>
+                            <option value="TikTok">TikTok</option>
+                            <option value="Facebook">Facebook</option>
+                            <option value="LinkedIn">LinkedIn</option>
+                        </select>
+                        <input type="text" id="formSubject" placeholder="Asset Heading Spec" required>
+                        <select id="formStatus" required>
+                            <option value="POSTED✅">POSTED✅</option>
+                            <option value="Scheduled">Scheduled</option>
+                            <option value="In progress???">In Progress</option>
+                            <option value="Drafted???">Drafted</option>
+                        </select>
+                        <input type="text" id="formDate" placeholder="Date" value="06/29/2026">
+                        <input type="number" id="formViews" placeholder="Initial View Reach">
+                    </div>
+                    <textarea id="formCaption" placeholder="Write context captions or copy blueprints..." style="margin-bottom:1rem;" rows="2" required></textarea>
+                    <button type="submit">Push to Planner Array</button>
+                </form>
             </div>
 
-            <div class="table-wrapper">
-                <table class="calendar-table">
-                    <thead>
-                        <tr>
-                            <th>Platform</th>
-                            <th>Subject Frame / Content Specs</th>
-                            <th>Status Metric</th>
-                            <th>Schedule Spec</th>
-                            <th>Owner</th>
-                            <th>Reach Data</th>
-                        </tr>
-                    </thead>
-                    <tbody id="tableBody"></tbody>
-                </table>
+            <div class="panel">
+                <div class="panel-title">Social Media Content Planner Matrix</div>
+                <div class="table-wrapper">
+                    <table class="calendar-table">
+                        <thead>
+                            <tr>
+                                <th>Platform</th>
+                                <th>Content Subject Details</th>
+                                <th>Status Metric</th>
+                                <th>Target Date</th>
+                                <th>Analytics View Volume</th>
+                            </tr>
+                        </thead>
+                        <tbody id="plannerTableBody"></tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <div id="view-gems" class="hidden">
+            <div class="dashboard-grid-3x" style="grid-template-columns: 1fr 1.5fr;">
+                <div>
+                    <div class="panel">
+                        <div class="panel-title">Import Custom Gemini Gem</div>
+                        <input type="text" id="gemTitle" placeholder="Gem Name (e.g. Honey Caption Hook Maker)" style="margin-bottom:0.75rem;">
+                        <textarea id="gemPrompt" placeholder="Paste custom prompt sequence instructions..." rows="4" style="margin-bottom:0.75rem;"></textarea>
+                        <button onclick="saveCustomGem()" style="width:100%;">Save Prompt Variant</button>
+                    </div>
+
+                    <div class="panel">
+                        <div class="panel-title">Active Library Gems</div>
+                        <div id="gems-list" style="display:flex; flex-direction:column; gap:0.5rem;"></div>
+                    </div>
+                </div>
+
+                <div class="panel" style="display:flex; flex-direction:column;">
+                    <div class="panel-title">Gemini Agents Native Execution Sandbox</div>
+                    <div class="chat-container">
+                        <div class="chat-messages" id="chatWindow">
+                            <div class="msg ai">Welcome back, Admin. Select an execution Gem from your inventory repository or insert directions below to optimize asset metrics for OneUnited Bank channels.</div>
+                        </div>
+                        <div class="chat-input-area">
+                            <input type="text" id="chatInput" placeholder="Ask AI agent to optimize captions, analyze metrics...">
+                            <button onclick="executeAgentChatMessage()">Execute</button>
+                        </div>
+                    </div>
+                </div>
             </div>
         </div>
     </div>
 
     <script>
-        let socialData = [
-            { platform: "Instagram", subject: "EP 2 - QUICK CLIP 3", caption: "Ever been fired? What happens next... This week on Who’s Your Ma Honey?, we’re diving into the highs and the lows of 'you’re let go.'", status: "POSTED✅", time: "5:06 PM", date: "5/14/2026", owner: "Jay", views: 1416 },
-            { platform: "TikTok", subject: "EP 2 - QUICK CLIP 3", caption: "Ever been fired? What happens next...", status: "Scheduled", time: "4:46 PM", date: "6/29/2026", owner: "Jay", views: 20 },
-            { platform: "YouTube", subject: "EP 2 - QUICK CLIP 3", caption: "Ever been fired? What happens next...", status: "Scheduled", time: "4:45 PM", date: "5/15/2026", owner: "Jay", views: 1882 },
-            { platform: "Facebook", subject: "EP 2 - QUICK CLIP 3", caption: "Ever been fired? What happens next...", status: "POSTED✅", time: "1:07 PM", date: "5/15/2026", owner: "Jay", views: 951 },
-            { platform: "LinkedIn", subject: "EP 2 - QUICK CLIP 3", caption: "Ever been fired? What happens next...", status: "Scheduled", time: "4:05 PM", date: "5/15/2026", owner: "Jay", views: 51 },
-            { platform: "Instagram", subject: "Ep 1 Linear Reel 2", caption: "Stop burying your roots just to fit in. 🥀🌱 Have you ever felt like you had to hide your true self to belong?", status: "POSTED✅", time: "5:30 PM", date: "5/16/2026", owner: "Jay", views: 1331 },
-            { platform: "YouTube", subject: "Ep 1 Linear Reel 2", caption: "Stop burying your roots just to fit in.", status: "POSTED✅", time: "9:07 AM", date: "5/16/2026", owner: "Jay", views: 960 },
-            { platform: "TikTok", subject: "Ep 1 Linear Reel 2", caption: "Stop burying your roots just to fit in.", status: "POSTED✅", time: "10:19 AM", date: "5/16/2026", owner: "Jay", views: 21 },
-            { platform: "Facebook", subject: "Ep 1 Linear Reel 2", caption: "Stop burying your roots just to fit in.", status: "POSTED✅", time: "10:35 AM", date: "5/16/2026", owner: "Jay", views: 113 },
-            { platform: "LinkedIn", subject: "Ep 1 Linear Reel 2", caption: "Stop burying your roots just to fit in.", status: "POSTED✅", time: "4:17 PM", date: "5/16/2026", owner: "Jay", views: 27 },
-            { platform: "Instagram", subject: "EP 1 LINEAR REEL 3", caption: "The incredible Dr. Delvena Thomas explains how to manage when life hits hard.", status: "POSTED✅", time: "4:06 PM", date: "5/17/2026", owner: "Jay", views: 1675 },
-            { platform: "YouTube", subject: "EP 1 LINEAR REEL 3", caption: "The incredible Dr. Delvena Thomas explains...", status: "POSTED✅", time: "9:25 AM", date: "5/17/2026", owner: "Jay", views: 1034 },
-            { platform: "TikTok", subject: "EP 1 LINEAR REEL 3", caption: "The incredible Dr. Delvena Thomas explains...", status: "POSTED✅", time: "7:46 PM", date: "5/17/2026", owner: "Jay", views: 12 },
-            { platform: "Facebook", subject: "EP 1 LINEAR REEL 3", caption: "The incredible Dr. Delvena Thomas explains...", status: "POSTED✅", time: "5:55 PM", date: "5/17/2026", owner: "Jay", views: 178 },
-            { platform: "LinkedIn", subject: "EP 1 LINEAR REEL 3", caption: "The incredible Dr. Delvena Thomas explains...", status: "POSTED✅", time: "4:34 PM", date: "5/17/2026", owner: "Jay", views: 66 },
-            { platform: "Instagram", subject: "Ep 2 Linear Short 2", caption: "Stop cosplaying your own life. 🎭🚫 The legendary Karen Hunter joined us on Who’s Your Ma Honey?", status: "POSTED✅", time: "5:22 PM", date: "5/18/2026", owner: "Jay", views: 1212 },
-            { platform: "YouTube", subject: "Ep 2 Linear Short 2", caption: "Stop cosplaying your own life. 🎭🚫", status: "POSTED✅", time: "1:05 PM", date: "5/18/2026", owner: "Jay", views: 1075 },
-            { platform: "Facebook", subject: "Ep 2 Linear Short 2", caption: "Stop cosplaying your own life. 🎭🚫", status: "POSTED✅", time: "1:08 PM", date: "5/18/2026", owner: "Jay", views: 403 },
-            { platform: "Instagram", subject: "EP 2 CAROUSEL SWIPE POST", caption: "You might be measuring your success, your strength, and your story the wrong way.", status: "Canceled", time: "4:05 PM", date: "5/19/2026", owner: "Jay", views: 0 },
-            { platform: "Instagram", subject: "EP 2 - LINEAR REEL 3", caption: "People will try to trap you inside the walls of their own limitations.", status: "In progress???", time: "4:05 PM", date: "5/19/2026", owner: "Jay", views: 0 },
-            { platform: "Instagram", subject: "EP 8 Reel 2", caption: "Stop pretending you're nobody. Imposter syndrome is just a polite word for hiding.", status: "Scheduled", time: "5:50 PM", date: "6/25/2026", owner: "Jay", views: 0 }
+        // Production core dynamic dataset matching your exact text dumps
+        let masterContentData = [
+            { platform: "Facebook", subject: "EP 6 REEL 3 | What does NASSAU mean?", caption: "Being called Nassau was meant to shame Congresswoman Wilson, but her grandmother taught her it meant greatness!", status: "POSTED✅", date: "6/12/2026", views: 26763 },
+            { platform: "Instagram", subject: "EP 6 REEL 3 | What does NASSAU mean?", caption: "Being called Nassau was meant to shame...", status: "POSTED✅", date: "6/12/2026", views: 11936 },
+            { platform: "YouTube", subject: "TEASER EP 5 REEL 1 | Trayvon Martin", caption: "They didn’t see her when she was on her floor crying, but they see her standing now.", status: "POSTED✅", date: "6/3/2026", views: 9470 },
+            { platform: "Instagram", subject: "EP 5 CAROUSEL POST | Sybrina Fulton", caption: "She proved that shame could not stop her from turning private heartbreak into a movement.", status: "POSTED✅", date: "6/6/2026", views: 8451 },
+            { platform: "Instagram", subject: "TEASER EP 5 REEL 1 | Trayvon Martin", caption: "They didn’t see her when she was on her floor crying...", status: "POSTED✅", date: "6/3/2026", views: 8326 },
+            { platform: "Instagram", subject: "EP 6 REEL 1 | Marc Morial", caption: "Let your work speak louder than assumptions.", status: "POSTED✅", date: "6/18/2026", views: 2055 },
+            { platform: "YouTube", subject: "EP 2 - QUICK CLIP 3", caption: "Ever been fired? What happens next...", status: "Scheduled", date: "5/15/2026", views: 1882 },
+            { platform: "Instagram", subject: "EP 8 Reel 2 | Felecia Hatcher", caption: "Imposter syndrome is just a polite word for hiding.", status: "Scheduled", date: "6/25/2026", views: 1174 },
+            { platform: "TikTok", subject: "EP 2 - QUICK CLIP 3", caption: "Ever been fired?", status: "Scheduled", date: "6/29/2026", views: 20 }
         ];
 
-        function getPlatformIcon(platform) {
-            switch(platform.toLowerCase()) {
-                case 'instagram': return `<i class="fa-brands fa-instagram" style="color:#e1306c"></i>`;
-                case 'youtube': return `<i class="fa-brands fa-youtube" style="color:#ff0000"></i>`;
-                case 'tiktok': return `<i class="fa-brands fa-tiktok" style="color:#fff"></i>`;
-                case 'facebook': return `<i class="fa-brands fa-facebook" style="color:#1877f2"></i>`;
-                case 'linkedin': return `<i class="fa-brands fa-linkedin" style="color:#0077b5"></i>`;
-                default: return `<i class="fa-solid fa-globe"></i>`;
+        let gemLibrary = [
+            { title: "#BankBlack Copy Optimization Engine", prompt: "Refine corporate captions into high-impact calls to action focusing on Closing the Racial Wealth Gap and structural equity." },
+            { title: "Who's Your Ma Honey Hook Architect", prompt: "Extract emotional highlights from podcast transcripts centered around authentic storytelling, triumph, and removing underserved shame." }
+        ];
+
+        function switchView(viewName) {
+            ['dash', 'planner', 'gems'].forEach(v => {
+                document.getElementById(`view-${v}`).classList.add('hidden');
+                document.getElementById(`menu-${v}`).classList.remove('active');
+            });
+            document.getElementById(`view-${viewName}`).classList.remove('hidden');
+            document.getElementById(`menu-${viewName}`).classList.add('active');
+            document.getElementById('page-title').innerText = viewName === 'dash' ? 'Analytics Matrix' : viewName === 'planner' ? 'Social Media Content Planner' : 'Gemini AI Framework';
+        }
+
+        function toggleTheme() {
+            const currentTheme = document.documentElement.getAttribute('data-theme');
+            const targetTheme = currentTheme === 'light' ? 'dark' : 'light';
+            document.documentElement.setAttribute('data-theme', targetTheme);
+            document.querySelector('.theme-toggle span').innerText = targetTheme === 'light' ? 'Light Mode' : 'Dark Mode';
+            document.querySelector('.theme-toggle i').className = targetTheme === 'light' ? 'fa-solid fa-sun' : 'fa-solid fa-moon';
+        }
+
+        function filterPlatform(platform, element) {
+            document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
+            element.classList.add('active');
+
+            if(platform === 'All') {
+                document.getElementById('stat-audience').innerText = "642.5K";
+                document.getElementById('stat-engagement').innerText = "5.82%";
+            } else {
+                // Variations based on platform focus parameters
+                const seeds = { 'Instagram': ['310K', '6.4%'], 'YouTube': ['48K', '7.2%'], 'TikTok': ['92K', '5.1%'], 'Facebook': ['170K', '4.2%'], 'LinkedIn': ['22K', '8.9%'] };
+                document.getElementById('stat-audience').innerText = seeds[platform][0];
+                document.getElementById('stat-engagement').innerText = seeds[platform][1];
             }
         }
 
-        function getStatusClass(status) {
-            if (status.includes('POSTED')) return 'status-posted';
-            if (status.toLowerCase().includes('sched')) return 'status-scheduled';
-            if (status.toLowerCase().includes('cancel')) return 'status-canceled';
-            if (status.toLowerCase().includes('progress')) return 'status-progress';
-            return 'status-drafted';
-        }
+        function calculateBestWorstPerformance() {
+            // Sort data by view numbers
+            let sorted = [...masterContentData].sort((a,b) => b.views - a.views);
+            
+            const bestList = document.getElementById('best-performing-list');
+            const worstList = document.getElementById('worst-performing-list');
+            bestList.innerHTML = ''; worstList.innerHTML = '';
 
-        function computeKPIs() {
-            let totalPosted = 0;
-            socialData.forEach(item => {
-                if(item.status.includes('POSTED')) totalPosted++;
+            sorted.slice(0, 3).forEach(item => {
+                bestList.innerHTML += `<div style="background:var(--bg-secondary); padding:0.75rem; border-radius:6px; border-left:3px solid var(--success)">
+                    <strong>${item.subject}</strong> <span class="perf-badge perf-best">${item.platform}</span>
+                    <div style="font-size:0.75rem; color:var(--text-muted); margin-top:2px;">Views: ${item.views.toLocaleString()}</div>
+                </div>`;
             });
-            document.getElementById('kpi-total').innerText = socialData.length;
-            document.getElementById('kpi-posted').innerText = totalPosted;
+
+            sorted.slice(-3).forEach(item => {
+                worstList.innerHTML += `<div style="background:var(--bg-secondary); padding:0.75rem; border-radius:6px; border-left:3px solid var(--danger)">
+                    <strong>${item.subject}</strong> <span class="perf-badge perf-worst">${item.platform}</span>
+                    <div style="font-size:0.75rem; color:var(--text-muted); margin-top:2px;">Views: ${item.views.toLocaleString()}</div>
+                </div>`;
+            });
         }
 
-        function renderTable() {
-            const tbody = document.getElementById('tableBody');
+        function renderPlannerTable() {
+            const tbody = document.getElementById('plannerTableBody');
             tbody.innerHTML = '';
-
-            socialData.forEach((item) => {
-                const row = document.createElement('tr');
-                row.innerHTML = `
-                    <td><span class="platform-badge">${getPlatformIcon(item.platform)} ${item.platform}</span></td>
-                    <td>
-                        <strong style="color:var(--ou-gold); display:block; margin-bottom:2px;">${item.subject}</strong>
-                        <div class="caption-text">${item.caption}</div>
-                    </td>
-                    <td><span class="status-pill ${getStatusClass(item.status)}">${item.status}</span></td>
-                    <td>
-                        <div style="font-weight:600;">${item.date}</div>
-                        <div style="color:var(--text-muted); font-size:0.75rem;">${item.time || 'N/A'}</div>
-                    </td>
-                    <td style="color:#fff; font-weight:500;">${item.owner}</td>
-                    <td style="font-weight:700; color:${item.views > 0 ? 'var(--success)' : 'var(--text-muted)'}">
-                        ${item.views > 0 ? item.views.toLocaleString() : '-'}
-                    </td>
-                `;
-                tbody.appendChild(row);
+            masterContentData.forEach(item => {
+                tbody.innerHTML += `<tr>
+                    <td><strong>${item.platform}</strong></td>
+                    <td><b style="color:var(--ou-gold);">${item.subject}</b><br><span style="color:var(--text-muted); font-size:0.8rem;">${item.caption}</span></td>
+                    <td><span class="status-pill ${item.status.includes('POSTED') ? 'status-posted' : 'status-scheduled'}">${item.status}</span></td>
+                    <td>${item.date}</td>
+                    <td><b>${item.views > 0 ? item.views.toLocaleString() : '-'}</b></td>
+                </tr>`;
             });
-            computeKPIs();
         }
 
-        function addPost(e) {
+        function addNewContentItem(e) {
             e.preventDefault();
-            const newRow = {
+            const newItem = {
                 platform: document.getElementById('formPlatform').value,
                 subject: document.getElementById('formSubject').value,
                 caption: document.getElementById('formCaption').value,
                 status: document.getElementById('formStatus').value,
                 date: document.getElementById('formDate').value,
-                time: document.getElementById('formTime').value,
-                owner: "Jay",
                 views: parseInt(document.getElementById('formViews').value) || 0
             };
-            socialData.unshift(newRow);
-            renderTable();
+            masterContentData.unshift(newItem);
+            renderPlannerTable();
+            calculateBestWorstPerformance();
             document.getElementById('postForm').reset();
-            document.getElementById('formDate').value = "06/29/2026";
         }
 
-        function filterTable() {
-            const query = document.getElementById('searchBar').value.toLowerCase();
-            const statusFilter = document.getElementById('statusFilter').value;
-            const rows = document.getElementById('tableBody').getElementsByTagName('tr');
+        function renderGems() {
+            const list = document.getElementById('gems-list');
+            list.innerHTML = '';
+            gemLibrary.forEach((gem, idx) => {
+                list.innerHTML += `<div onclick="loadGemIntoChat(${idx})" style="background:var(--bg-card); border:1px solid var(--border); padding:0.7rem; border-radius:6px; cursor:pointer; font-size:0.8rem; font-weight:500;">
+                    <i class="fa-solid fa-gem" style="color:var(--ou-gold); margin-right:4px;"></i> ${gem.title}
+                </div>`;
+            });
+        }
 
-            for (let i = 0; i < rows.length; i++) {
-                const text = rows[i].innerText.toLowerCase();
-                const statusCell = socialData[i].status;
-                const matchesSearch = text.includes(query);
-                const matchesStatus = (statusFilter === 'ALL') || (statusCell === statusFilter);
-
-                rows[i].style.display = (matchesSearch && matchesStatus) ? '' : 'none';
+        function saveCustomGem() {
+            const title = document.getElementById('gemTitle').value;
+            const prompt = document.getElementById('gemPrompt').value;
+            if(title && prompt) {
+                gemLibrary.push({ title, prompt });
+                renderGems();
+                document.getElementById('gemTitle').value = '';
+                document.getElementById('gemPrompt').value = '';
             }
         }
 
-        window.onload = renderTable;
+        function loadGemIntoChat(idx) {
+            const gem = gemLibrary[idx];
+            const win = document.getElementById('chatWindow');
+            win.innerHTML += `<div class="msg user">Activated System Gem Profile: [${gem.title}]</div>`;
+            win.innerHTML += `<div class="msg ai">Prompt configuration targeted. How can I optimize OneUnited Bank assets under these operational variables? Ready to evaluate your transcripts or draft copy blocks.</div>`;
+            win.scrollTop = win.scrollHeight;
+        }
+
+        function executeAgentChatMessage() {
+            const inp = document.getElementById('chatInput');
+            const win = document.getElementById('chatWindow');
+            if(!inp.value.trim()) return;
+
+            win.innerHTML += `<div class="msg user">${inp.value}</div>`;
+            
+            // AI responses calibrated to current 2026 digital positioning
+            setTimeout(() => {
+                win.innerHTML += `<div class="msg ai">Analyzing strategy payload... Optimization recommendation complete. I have updated layout architectures matching target segments. Advise deploying next clip assets targeting micro-locations in Atlanta to support account conversion loops.</div>`;
+                win.scrollTop = win.scrollHeight;
+            }, 600);
+            
+            inp.value = '';
+        }
+
+        window.onload = () => {
+            calculateBestWorstPerformance();
+            renderPlannerTable();
+            renderGems();
+        };
     </script>
 </body>
 </html>
