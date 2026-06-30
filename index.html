@@ -64,13 +64,19 @@
         .guest-card i { color: var(--ou-gold); margin-bottom: 4px; font-size: 1.1rem; }
         .guest-card h4 { font-size: 0.8rem; font-weight: 700; }
 
-        .form-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(130px, 1fr)); gap: 0.75rem; margin-bottom: 1rem; }
+        .platform-tabs { display: flex; gap: 0.5rem; margin-bottom: 1rem; overflow-x: auto; padding-bottom: 5px; }
+        .tab-btn { background: var(--bg-secondary); border: 1px solid var(--border); color: var(--text-muted); padding: 0.4rem 1rem; border-radius: 20px; font-size: 0.8rem; font-weight: 600; cursor: pointer; }
+        .tab-btn.active { background: var(--ou-burgundy); color: #fff; border-color: var(--ou-gold); }
+
+        .form-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(120px, 1fr)); gap: 0.75rem; margin-bottom: 1rem; }
         input, select, textarea { background: var(--bg-secondary); border: 1px solid var(--border); color: var(--text-main); padding: 0.6rem; border-radius: 6px; font-size: 0.85rem; width: 100%; }
         button, .action-btn { background: var(--ou-burgundy); color: #fff; border: 1px solid var(--ou-gold); padding: 0.6rem 1.2rem; border-radius: 6px; font-weight: 600; cursor: pointer; font-size: 0.85rem; display: inline-flex; align-items: center; gap: 6px; border: none; }
 
         .table-wrapper { overflow-x: auto; max-height: 400px; }
         .calendar-table { width: 100%; border-collapse: collapse; text-align: left; font-size: 0.85rem; }
         .calendar-table th { background: var(--bg-secondary); padding: 12px; font-weight: 600; color: var(--text-muted); text-transform: uppercase; font-size: 0.75rem; position: sticky; top: 0; z-index: 5; }
+        .calendar-table th.sortable { cursor: pointer; color: var(--ou-gold); }
+        .calendar-table th.sortable:hover { text-decoration: underline; }
         .calendar-table td { padding: 12px; border-bottom: 1px solid var(--border); vertical-align: top; }
         
         .status-pill { padding: 2px 8px; border-radius: 12px; font-size: 0.75rem; font-weight: 600; display: inline-block; background: rgba(46, 196, 182, 0.15); color: var(--success); }
@@ -92,7 +98,7 @@
         <header>
             <div>
                 <h1 id="page-title">Analytics Matrix</h1>
-                <p style="color: var(--text-muted); font-size: 0.85rem; margin-top: 4px;">Unified social standings and content metrics hub</p>
+                <p style="color: var(--text-muted); font-size: 0.85rem; margin-top: 4px;">Dynamic content filters and layout scheduling console</p>
             </div>
             <div style="display:flex; gap:10px;">
                 <button class="action-btn" style="background:var(--bg-card); border:1px solid var(--border);" onclick="toggleAdminDrawer()"><i class="fa-solid fa-sliders"></i> Admin Control Vault</button>
@@ -141,14 +147,8 @@
 
             <div class="panel" style="margin-bottom:1.5rem;">
                 <div class="panel-title">Guest Legacy Hub & Cross-Pollination Filter</div>
-                <div class="guest-grid">
-                    <div class="guest-card active" onclick="filterByGuest('All', this)"><i class="fa-solid fa-users"></i><h4>All Campaigns</h4></div>
-                    <div class="guest-card" onclick="filterByGuest('Karen Hunter', this)"><i class="fa-solid fa-microphone-lines"></i><h4>Karen Hunter</h4></div>
-                    <div class="guest-card" onclick="filterByGuest('Sybrina Fulton', this)"><i class="fa-solid fa-hands-holding-child"></i><h4>Sybrina Fulton</h4></div>
-                    <div class="guest-card" onclick="filterByGuest('Frederica Wilson', this)"><i class="fa-solid fa-building-capitol"></i><h4>Rep. Wilson</h4></div>
-                    <div class="guest-card" onclick="filterByGuest('Marc Morial', this)"><i class="fa-solid fa-landmark"></i><h4>Marc Morial</h4></div>
-                    <div class="guest-card" onclick="filterByGuest('Felecia Hatcher', this)"><i class="fa-solid fa-lightbulb"></i><h4>Felecia Hatcher</h4></div>
-                </div>
+                <div class="guest-grid" id="dynamicGuestGrid">
+                    </div>
             </div>
 
             <div class="stats-grid">
@@ -178,7 +178,7 @@
         <div id="view-planner" class="hidden">
             <div class="panel">
                 <div class="panel-title">
-                    <span>Social Media Content Planner</span>
+                    <span>Add New Asset Target</span>
                     <button class="action-btn" onclick="exportPlannerToCSV()" style="background:var(--bg-secondary); font-size:0.75rem; padding:0.4rem 0.8rem;"><i class="fa-solid fa-file-csv"></i> Download Dataset (.CSV)</button>
                 </div>
                 
@@ -191,15 +191,9 @@
                             <option value="Facebook">Facebook</option>
                             <option value="LinkedIn">LinkedIn</option>
                         </select>
-                        <input type="text" id="formSubject" placeholder="Episode Frame / Description" required>
-                        <select id="formGuest" required>
-                            <option value="General/Other">Select Tracked Guest Group</option>
-                            <option value="Karen Hunter">Karen Hunter</option>
-                            <option value="Sybrina Fulton">Sybrina Fulton</option>
-                            <option value="Frederica Wilson">Frederica Wilson</option>
-                            <option value="Marc Morial">Marc Morial</option>
-                            <option value="Felecia Hatcher">Felecia Hatcher</option>
-                        </select>
+                        <input type="text" id="formSubject" placeholder="Episode Frame Specs" required>
+                        <input type="text" id="formGuestText" placeholder="Guest Name (e.g., Karen Hunter)" required>
+                        <input type="date" id="formDate" required>
                         <input type="text" id="formTime" placeholder="Deployment Time" value="4:15 PM" required>
                         <input type="number" id="formViews" placeholder="Views Reach Metric" required>
                     </div>
@@ -207,12 +201,25 @@
                     <button type="submit">Append To Planner Grid</button>
                 </form>
 
+                <div style="margin-top:2rem; margin-bottom:1rem;">
+                    <span style="font-size:0.8rem; color:var(--text-muted); font-weight:700; text-transform:uppercase; display:block; margin-bottom:8px;">Isolate Platform View Feed:</span>
+                    <div class="platform-tabs">
+                        <button class="tab-btn active" onclick="filterPlannerByPlatform('All', this)">All Platforms Combined</button>
+                        <button class="tab-btn" onclick="filterPlannerByPlatform('Instagram', this)">Instagram Only</button>
+                        <button class="tab-btn" onclick="filterPlannerByPlatform('TikTok', this)">TikTok Only</button>
+                        <button class="tab-btn" onclick="filterPlannerByPlatform('YouTube', this)">YouTube Only</button>
+                        <button class="tab-btn" onclick="filterPlannerByPlatform('Facebook', this)">Facebook Only</button>
+                        <button class="tab-btn" onclick="filterPlannerByPlatform('LinkedIn', this)">LinkedIn Only</button>
+                    </div>
+                </div>
+
                 <div class="table-wrapper">
                     <table class="calendar-table">
                         <thead>
                             <tr>
                                 <th>Platform</th>
                                 <th>Content Details & Tracked Hashtags</th>
+                                <th class="sortable" onclick="toggleDateSortingOrder()"><i class="fa-solid fa-sort"></i> Deployment Date <span id="sortDirectionIcon">▼</span></th>
                                 <th>Deployment Time</th>
                                 <th>Reach Count</th>
                             </tr>
@@ -226,16 +233,18 @@
 
     <script>
         let socialDataArray = [
-            { platform: "Facebook", subject: "EP 6 REEL 3 | What does NASSAU mean?", guest: "Frederica Wilson", caption: "Being called Nassau was meant to shame Congresswoman Wilson! #WhosYourMaHoney #FredericaWilson", time: "4:00 PM", views: 26763 },
-            { platform: "Instagram", subject: "EP 6 REEL 3 | What does NASSAU mean?", guest: "Frederica Wilson", caption: "Being called Nassau was meant to shame... #WhosYourMaHoney #FinancialFreedom", time: "4:15 PM", views: 11936 },
-            { platform: "YouTube", subject: "TEASER EP 5 REEL 1 | In honor of Trayvon Martin", guest: "Sybrina Fulton", caption: "They didn’t see her when she was on her floor crying. #WhosYourMaHoney #JusticeForTrayvon", time: "3:05 PM", views: 9470 },
-            { platform: "Instagram", subject: "EP 5 CAROUSEL POST", guest: "Sybrina Fulton", caption: "She turned private heartbreak into a public movement. #WhosYourMaHoney #SybrinaFulton", time: "4:20 PM", views: 8451 },
-            { platform: "TikTok", subject: "EP 2 - QUICK CLIP 3 | Ever been fired?", guest: "Karen Hunter", caption: "Drop a comment below! #WhosYourMaHoney #NewPodcast #SuperPower", time: "4:46 PM", views: 2120 },
-            { platform: "TikTok", subject: "Ep 1 Linear Reel 2 | Trauma Caught Us By Surprise", guest: "General/Other", caption: "Stop burying your roots just to fit in. #WhosYourMaHoney #OwnYourTruth", time: "10:19 AM", views: 1540 },
-            { platform: "Instagram", subject: "EP 8 Reel 2 | Stop pretending you're nobody.", guest: "Felecia Hatcher", caption: "Imposter syndrome is just a polite word for hiding. #WhosYourMaHoney #SuperPower", time: "5:50 PM", views: 1174 }
+            { platform: "Facebook", subject: "EP 6 REEL 3 | What does NASSAU mean?", guest: "Frederica Wilson", caption: "Being called Nassau was meant to shame Congresswoman Wilson! #WhosYourMaHoney #FredericaWilson", date: "2026-06-12", time: "4:00 PM", views: 26763 },
+            { platform: "Instagram", subject: "EP 6 REEL 3 | What does NASSAU mean?", guest: "Frederica Wilson", caption: "Being called Nassau was meant to shame... #WhosYourMaHoney #FinancialFreedom", date: "2026-06-12", time: "4:15 PM", views: 11936 },
+            { platform: "YouTube", subject: "TEASER EP 5 REEL 1 | In honor of Trayvon Martin", guest: "Sybrina Fulton", caption: "They didn’t see her when she was on her floor crying. #WhosYourMaHoney #JusticeForTrayvon", date: "2026-06-03", time: "3:05 PM", views: 9470 },
+            { platform: "Instagram", subject: "EP 5 CAROUSEL POST", guest: "Sybrina Fulton", caption: "She turned private heartbreak into a public movement. #WhosYourMaHoney #SybrinaFulton", date: "2026-06-06", time: "4:20 PM", views: 8451 },
+            { platform: "TikTok", subject: "EP 2 - QUICK CLIP 3 | Ever been fired?", guest: "Karen Hunter", caption: "Drop a comment below! #WhosYourMaHoney #NewPodcast #SuperPower", date: "2026-05-15", time: "4:46 PM", views: 2120 },
+            { platform: "TikTok", subject: "Ep 1 Linear Reel 2 | Trauma Caught Us By Surprise", guest: "General/Other", caption: "Stop burying your roots just to fit in. #WhosYourMaHoney #OwnYourTruth", date: "2026-05-16", time: "10:19 AM", views: 1540 },
+            { platform: "Instagram", subject: "EP 8 Reel 2 | Stop pretending you're nobody.", guest: "Felecia Hatcher", caption: "Imposter syndrome is just a polite word for hiding. #WhosYourMaHoney #SuperPower", date: "2026-06-25", time: "5:50 PM", views: 1174 }
         ];
 
         let selectedGuestFilter = "All";
+        let selectedPlatformPlannerFilter = "All";
+        let isDateSortedAscending = false; 
 
         function switchView(viewName) {
             ['dash', 'planner'].forEach(v => {
@@ -256,7 +265,6 @@
             document.getElementById('adminDrawer').classList.toggle('hidden');
         }
 
-        // PATH B OVERRIDE ENGINE: SAVES ACCOUNTS DATA DIRECTLY IN LOCAL STORAGE
         function saveAdminProfileOverrides() {
             localStorage.setItem('ou_ig', document.getElementById('adm-ig').value);
             localStorage.setItem('ou_tt', document.getElementById('adm-tt').value);
@@ -274,7 +282,6 @@
             document.getElementById('lbl-fb').innerText = localStorage.getItem('ou_fb') || '100K+';
             document.getElementById('lbl-li').innerText = localStorage.getItem('ou_li') || '22K+';
 
-            // Sync form fields values
             document.getElementById('adm-ig').value = localStorage.getItem('ou_ig') || '179K';
             document.getElementById('adm-tt').value = localStorage.getItem('ou_tt') || '3.2K';
             document.getElementById('adm-yt').value = localStorage.getItem('ou_yt') || '10.5K';
@@ -282,11 +289,49 @@
             document.getElementById('adm-li').value = localStorage.getItem('ou_li') || '22K+';
         }
 
+        // GENERATES THE GUEST HUB SELECTION BLOCKS DIRECTLY FROM COLLECTED INGESTIONS
+        function generateDynamicGuestGrid() {
+            const grid = document.getElementById('dynamicGuestGrid');
+            
+            // Collect unique names from your array data records automatically
+            let uniqueGuests = ["Karen Hunter", "Sybrina Fulton", "Frederica Wilson", "Marc Morial", "Felecia Hatcher"];
+            socialDataArray.forEach(item => {
+                if(item.guest && !uniqueGuests.includes(item.guest) && item.guest !== "General/Other") {
+                    uniqueGuests.push(item.guest);
+                }
+            });
+
+            grid.innerHTML = `<div class="guest-card ${selectedGuestFilter === 'All' ? 'active' : ''}" onclick="filterByGuest('All', this)"><i class="fa-solid fa-users"></i><h4>All Campaigns</h4></div>`;
+            
+            uniqueGuests.forEach(guest => {
+                let iconClass = "fa-microphone-lines";
+                if(guest.includes("Fulton")) iconClass = "fa-hands-holding-child";
+                if(guest.includes("Wilson")) iconClass = "fa-building-capitol";
+                
+                grid.innerHTML += `<div class="guest-card ${selectedGuestFilter === guest ? 'active' : ''}" onclick="filterByGuest('${guest}', this)"><i class="fa-solid ${iconClass}"></i><h4>${guest}</h4></div>`;
+            });
+        }
+
         function filterByGuest(guestName, element) {
             document.querySelectorAll('.guest-card').forEach(c => c.classList.remove('active'));
             element.classList.add('active');
             selectedGuestFilter = guestName;
             recalculateMetricsEngine();
+        }
+
+        // PLATFORM ISO VIEW SORTER INTERFACE ACTIONS
+        function filterPlannerByPlatform(platformName, element) {
+            document.querySelectorAll('.platform-tabs .tab-btn').forEach(btn => btn.classList.remove('active'));
+            element.classList.add('active');
+            selectedPlatformPlannerFilter = platformName;
+            renderPlannerTable();
+        }
+
+        // DATE CHRONOLOGICAL RE-SORT CORE LOGIC ENGINE
+        function toggleDateSortingOrder() {
+            isDateSortedAscending = !isDateSortedAscending;
+            document.getElementById('sortDirectionIcon').innerText = isDateSortedAscending ? "▲" : "▼";
+            renderPlannerTable();
         }
 
         function recalculateMetricsEngine() {
@@ -317,8 +362,30 @@
 
         function renderPlannerTable() {
             const tbody = document.getElementById('plannerTableBody'); tbody.innerHTML = '';
-            socialDataArray.forEach(item => {
-                tbody.innerHTML += `<tr><td><b>${item.platform}</b></td><td><strong>[${item.guest}]</strong> ${item.subject}<br><span style="color:var(--text-muted); font-size:0.75rem;">${item.caption}</span></td><td><span class="status-pill">${item.time}</span></td><td><b>${item.views.toLocaleString()}</b></td></tr>`;
+            
+            // Execute Date Order Sorting Parameters
+            let workingArray = [...socialDataArray];
+            workingArray.sort((a, b) => {
+                let dateA = new Date(a.date);
+                let dateB = new Date(b.date);
+                return isDateSortedAscending ? dateA - dateB : dateB - dateA;
+            });
+
+            // Filter out by target visual platform tab
+            let displayArray = workingArray.filter(item => selectedPlatformPlannerFilter === "All" || item.platform === selectedPlatformPlannerFilter);
+
+            displayArray.forEach(item => {
+                // Prettify the string output date view structure
+                let rawDate = new Date(item.date + 'T00:00:00');
+                let formattedDate = rawDate.toLocaleDateString('en-US', { month: '2-digit', day: '2-digit', year: 'numeric' });
+
+                tbody.innerHTML += `<tr>
+                    <td><b>${item.platform}</b></td>
+                    <td><strong>[${item.guest}]</strong> ${item.subject}<br><span style="color:var(--text-muted); font-size:0.75rem;">${item.caption}</span></td>
+                    <td><b style="color:var(--ou-gold);">${formattedDate}</b></td>
+                    <td><span class="status-pill">${item.time}</span></td>
+                    <td><b>${item.views.toLocaleString()}</b></td>
+                </tr>`;
             });
         }
 
@@ -327,26 +394,36 @@
             let newItem = {
                 platform: document.getElementById('formPlatform').value,
                 subject: document.getElementById('formSubject').value,
-                guest: document.getElementById('formGuest').value,
+                guest: document.getElementById('formGuestText').value.trim(),
                 caption: document.getElementById('formCaption').value,
+                date: document.getElementById('formDate').value,
                 time: document.getElementById('formTime').value,
                 views: parseInt(document.getElementById('formViews').value) || 0
             };
             socialDataArray.unshift(newItem);
+            
+            generateDynamicGuestGrid(); // Refresh user profile dials lists
             renderPlannerTable();
             recalculateMetricsEngine();
             document.getElementById('postForm').reset();
+            setDefaultDatePickerDate();
+        }
+
+        function setDefaultDatePickerDate() {
+            document.getElementById('formDate').value = "2026-06-29";
         }
 
         function exportPlannerToCSV() {
-            let csvContent = "data:text/csv;charset=utf-8,Platform,Subject,Guest Tracker,Caption,Time,Reach Views\n";
-            socialDataArray.forEach(r => { csvContent += `"${r.platform}","${r.subject}","${r.guest}","${r.caption.replace(/"/g, '""')}","${r.time}",${r.views}\n`; });
+            let csvContent = "data:text/csv;charset=utf-8,Platform,Subject,Guest Tracker,Caption,Date,Time,Reach Views\n";
+            socialDataArray.forEach(r => { csvContent += `"${r.platform}","${r.subject}","${r.guest}","${r.caption.replace(/"/g, '""')}","${r.date}","${r.time}",${r.views}\n`; });
             let link = document.createElement("a"); link.setAttribute("href", encodeURI(csvContent)); link.setAttribute("download", "OneUnited_Metrics_Backup.csv");
             document.body.appendChild(link); link.click(); document.body.removeChild(link);
         }
 
         window.onload = () => { 
             loadSavedProfileMetrics(); 
+            setDefaultDatePickerDate();
+            generateDynamicGuestGrid();
             recalculateMetricsEngine(); 
             renderPlannerTable(); 
         };
