@@ -66,7 +66,7 @@
 
         .form-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 0.75rem; margin-bottom: 1rem; }
         input, select, textarea { background: var(--bg-secondary); border: 1px solid var(--border); color: var(--text-main); padding: 0.6rem; border-radius: 6px; font-size: 0.85rem; width: 100%; }
-        button, .action-btn { background: var(--ou-burgundy); color: #fff; border: 1px solid var(--ou-gold); padding: 0.6rem 1.2rem; border-radius: 6px; font-weight: 600; cursor: pointer; font-size: 0.85rem; display: inline-flex; align-items: center; gap: 6px; }
+        button, .action-btn { background: var(--ou-burgundy); color: #fff; border: 1px solid var(--ou-gold); padding: 0.6rem 1.2rem; border-radius: 6px; font-weight: 600; cursor: pointer; font-size: 0.85rem; display: inline-flex; align-items: center; gap: 6px; border: none; }
 
         .table-wrapper { overflow-x: auto; max-height: 400px; }
         .calendar-table { width: 100%; border-collapse: collapse; text-align: left; font-size: 0.85rem; }
@@ -91,7 +91,7 @@
         <header>
             <div>
                 <h1 id="page-title">Analytics Matrix</h1>
-                <p style="color: var(--text-muted); font-size: 0.85rem; margin-top: 4px;">Unified social profile data and content intelligence workspace</p>
+                <p style="color: var(--text-muted); font-size: 0.85rem; margin-top: 4px;">Verified real-time social ecosystem parameters</p>
             </div>
             <button class="theme-toggle" onclick="toggleTheme()">
                 <i class="fa-solid fa-moon"></i> <span>Dark Mode</span>
@@ -101,19 +101,23 @@
         <div id="view-dash">
             
             <div class="panel" style="margin-bottom:1.5rem;">
-                <div class="panel-title">Active Corporate Profile Standings (All Channels Overview)</div>
-                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 1rem;">
+                <div class="panel-title">Verified Corporate Account Footprints</div>
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 1rem;">
                     <div style="background:var(--bg-secondary); padding:1rem; border-radius:8px; border-top:3px solid #e1306c;">
                         <span style="font-size:0.8rem; color:var(--text-muted);"><i class="fa-brands fa-instagram"></i> Instagram</span>
-                        <h2 style="margin-top:5px; font-size:1.4rem;">125K+</h2>
+                        <h2 style="margin-top:5px; font-size:1.4rem;">179K</h2>
                     </div>
                     <div style="background:var(--bg-secondary); padding:1rem; border-radius:8px; border-top:3px solid #1877f2;">
                         <span style="font-size:0.8rem; color:var(--text-muted);"><i class="fa-brands fa-facebook"></i> Facebook</span>
-                        <h2 style="margin-top:5px; font-size:1.4rem;">190K+</h2>
+                        <h2 style="margin-top:5px; font-size:1.4rem;">100K+</h2>
                     </div>
                     <div style="background:var(--bg-secondary); padding:1rem; border-radius:8px; border-top:3px solid #ff0000;">
                         <span style="font-size:0.8rem; color:var(--text-muted);"><i class="fa-brands fa-youtube"></i> YouTube</span>
                         <h2 style="margin-top:5px; font-size:1.4rem;">10.5K</h2>
+                    </div>
+                    <div style="background:var(--bg-secondary); padding:1rem; border-radius:8px; border-top:3px solid #ffffff;">
+                        <span style="font-size:0.8rem; color:var(--text-muted);"><i class="fa-brands fa-tiktok"></i> TikTok</span>
+                        <h2 style="margin-top:5px; font-size:1.4rem;">92K+</h2>
                     </div>
                     <div style="background:var(--bg-secondary); padding:1rem; border-radius:8px; border-top:3px solid #0077b5;">
                         <span style="font-size:0.8rem; color:var(--text-muted);"><i class="fa-brands fa-linkedin"></i> LinkedIn</span>
@@ -123,9 +127,9 @@
             </div>
 
             <div class="panel" style="margin-bottom:1.5rem;">
-                <div class="panel-title">Guest Legacy Hub & Cross-Pollination Filter</div>
+                <div class="panel-title">Guest Legacy Hub Filter</div>
                 <div class="guest-grid">
-                    <div class="guest-card active" onclick="filterByGuest('All', this)"><i class="fa-solid fa-users"></i><h4>All Content Matrix</h4></div>
+                    <div class="guest-card active" onclick="filterByGuest('All', this)"><i class="fa-solid fa-users"></i><h4>All Campaigns</h4></div>
                     <div class="guest-card" onclick="filterByGuest('Karen Hunter', this)"><i class="fa-solid fa-microphone-lines"></i><h4>Karen Hunter</h4></div>
                     <div class="guest-card" onclick="filterByGuest('Sybrina Fulton', this)"><i class="fa-solid fa-hands-holding-child"></i><h4>Sybrina Fulton</h4></div>
                     <div class="guest-card" onclick="filterByGuest('Frederica Wilson', this)"><i class="fa-solid fa-building-capitol"></i><h4>Rep. Wilson</h4></div>
@@ -143,28 +147,28 @@
                 <div class="stat-card">
                     <div class="stat-header">Attributed ROI Bank Accounts</div>
                     <div class="stat-number" style="color: var(--success);" id="kpi-roi-accounts">0</div>
-                    <div class="stat-sub">Estimated Product Conversions</div>
+                    <div class="stat-sub">Calculated Product Conversions</div>
                 </div>
                 <div class="stat-card">
                     <div class="stat-header">⏱️ Best Deployment Target</div>
                     <div class="stat-number" style="color: var(--warning);" id="kpi-best-time">4:15 PM</div>
-                    <div class="stat-sub">Based on Historic Data Peak</div>
+                    <div class="stat-sub">Based on Historic Peak Data</div>
                 </div>
             </div>
 
             <div class="dashboard-grid-3x">
                 <div class="panel">
-                    <div class="panel-title">Platform Efficiency Index (ROI Weight)</div>
+                    <div class="panel-title">Platform Efficiency Score (ROI Weight)</div>
                     <table class="calendar-table" style="font-size:0.8rem;">
                         <thead>
-                            <tr><th>Platform</th><th>Total Reach</th><th>Index Score</th></tr>
+                            <tr><th>Platform</th><th>Total Views</th><th>Index Score</th></tr>
                         </thead>
                         <tbody id="efficiencyTableBody"></tbody>
                     </table>
                 </div>
 
                 <div class="panel">
-                    <div class="panel-title">Dynamic Hashtag Analytics Organizer</div>
+                    <div class="panel-title">Dynamic Hashtag Organizer</div>
                     <div id="hashtagContainer" style="display:flex; flex-direction:column;"></div>
                 </div>
             </div>
@@ -186,7 +190,7 @@
                             <option value="Facebook">Facebook</option>
                             <option value="LinkedIn">LinkedIn</option>
                         </select>
-                        <input type="text" id="formSubject" placeholder="Episode Frame / Description" required>
+                        <input type="text" id="formSubject" placeholder="Episode Frame / Details" required>
                         <select id="formGuest" required>
                             <option value="General/Other">Select Tracked Guest Group</option>
                             <option value="Karen Hunter">Karen Hunter</option>
@@ -195,11 +199,11 @@
                             <option value="Marc Morial">Marc Morial</option>
                             <option value="Felecia Hatcher">Felecia Hatcher</option>
                         </select>
-                        <input type="text" id="formTime" placeholder="Deployment Time" value="4:15 PM" required>
-                        <input type="number" id="formViews" placeholder="Views Reach Metric" required>
+                        <input type="text" id="formTime" placeholder="Time" value="4:15 PM" required>
+                        <input type="number" id="formViews" placeholder="Initial Views" required>
                     </div>
-                    <textarea id="formCaption" placeholder="Paste structural caption string frames here... Include hashtags." rows="2" style="margin-bottom:1rem;" required></textarea>
-                    <button type="submit">Append To Planner Grid</button>
+                    <textarea id="formCaption" placeholder="Write context captions or copy blueprint layouts here..." rows="2" style="margin-bottom:1rem;" required></textarea>
+                    <button type="submit">Append To Planner Matrix</button>
                 </form>
 
                 <div class="table-wrapper">
@@ -229,8 +233,9 @@
             { platform: "Instagram", subject: "TEASER EP 5 REEL 1 | In honor of Trayvon Martin", guest: "Sybrina Fulton", caption: "They didn’t see her when she was on her floor crying... #WhosYourMaHoney #JusticeForTrayvon", time: "3:21 PM", views: 8326 },
             { platform: "Instagram", subject: "EP 6 REEL 1 | The chip that built him.", guest: "Marc Morial", caption: "Let your work speak louder than assumptions. #WhosYourMaHoney #MarcMorial #OvercomingAdversity", time: "5:35 PM", views: 2055 },
             { platform: "YouTube", subject: "EP 2 - QUICK CLIP 3 | Ever been fired?", guest: "Karen Hunter", caption: "This week on Who’s Your Ma Honey?, we’re diving into the highs and lows. #WhosYourMaHoney #NewPodcast #OwnYourTruth", time: "4:45 PM", views: 1882 },
-            { platform: "Instagram", subject: "EP 1 LINEAR REEL 3", guest: "General/Other", caption: "The incredible Dr. Delvena Thomas explains how to manage when life hits hard. #WhosYourMaHoney #NewPodcast #SuperPower", time: "4:06 PM", views: 1675 },
-            { platform: "YouTube", subject: "EP 8 Reel 2 | Stop pretending you're nobody.", guest: "Felecia Hatcher", caption: "Imposter syndrome is just a polite word for hiding. #WhosYourMaHoney #NewPodcast #SuperPower", time: "5:50 PM", views: 1174 }
+            { platform: "TikTok", subject: "EP 2 - QUICK CLIP 3 | Ever been fired?", guest: "Karen Hunter", caption: "This week on Who’s Your Ma Honey?, we’re diving into the highs and lows of you’re let go. Drop a comment below! #WhosYourMaHoney #NewPodcast #SuperPower", time: "4:46 PM", views: 2120 },
+            { platform: "TikTok", subject: "Ep 1 Linear Reel 2 | Trauma Caught Us By Surprise", guest: "General/Other", caption: "Stop burying your roots just to fit in. Have you ever felt like you had to hide your true self to belong? #WhosYourMaHoney #NewPodcast #OwnYourTruth", time: "10:19 AM", views: 1540 },
+            { platform: "Instagram", subject: "EP 8 Reel 2 | Stop pretending you're nobody.", guest: "Felecia Hatcher", caption: "Imposter syndrome is just a polite word for hiding. #WhosYourMaHoney #NewPodcast #SuperPower", time: "5:50 PM", views: 1174 }
         ];
 
         let selectedGuestFilter = "All";
