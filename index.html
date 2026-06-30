@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>OneUnited Bank - Social Ecosystem Suite</title>
+    <title>OneUnited Bank - Social Suite Console</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
@@ -64,7 +64,7 @@
         .guest-card i { color: var(--ou-gold); margin-bottom: 4px; font-size: 1.1rem; }
         .guest-card h4 { font-size: 0.8rem; font-weight: 700; }
 
-        .form-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 0.75rem; margin-bottom: 1rem; }
+        .form-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(130px, 1fr)); gap: 0.75rem; margin-bottom: 1rem; }
         input, select, textarea { background: var(--bg-secondary); border: 1px solid var(--border); color: var(--text-main); padding: 0.6rem; border-radius: 6px; font-size: 0.85rem; width: 100%; }
         button, .action-btn { background: var(--ou-burgundy); color: #fff; border: 1px solid var(--ou-gold); padding: 0.6rem 1.2rem; border-radius: 6px; font-weight: 600; cursor: pointer; font-size: 0.85rem; display: inline-flex; align-items: center; gap: 6px; border: none; }
 
@@ -73,8 +73,9 @@
         .calendar-table th { background: var(--bg-secondary); padding: 12px; font-weight: 600; color: var(--text-muted); text-transform: uppercase; font-size: 0.75rem; position: sticky; top: 0; z-index: 5; }
         .calendar-table td { padding: 12px; border-bottom: 1px solid var(--border); vertical-align: top; }
         
-        .tag-row { display: flex; justify-content: space-between; font-size: 0.8rem; padding: 6px 0; border-bottom: 1px solid var(--border); }
+        .status-pill { padding: 2px 8px; border-radius: 12px; font-size: 0.75rem; font-weight: 600; display: inline-block; background: rgba(46, 196, 182, 0.15); color: var(--success); }
         .hidden { display: none !important; }
+        .admin-drawer { background: rgba(197, 160, 89, 0.05); border: 1px dashed var(--ou-gold); padding: 1.25rem; border-radius: 8px; margin-bottom: 1.5rem; }
     </style>
 </head>
 <body>
@@ -91,43 +92,55 @@
         <header>
             <div>
                 <h1 id="page-title">Analytics Matrix</h1>
-                <p style="color: var(--text-muted); font-size: 0.85rem; margin-top: 4px;">Verified real-time social ecosystem parameters</p>
+                <p style="color: var(--text-muted); font-size: 0.85rem; margin-top: 4px;">Unified social standings and content metrics hub</p>
             </div>
-            <button class="theme-toggle" onclick="toggleTheme()">
-                <i class="fa-solid fa-moon"></i> <span>Dark Mode</span>
-            </button>
+            <div style="display:flex; gap:10px;">
+                <button class="action-btn" style="background:var(--bg-card); border:1px solid var(--border);" onclick="toggleAdminDrawer()"><i class="fa-solid fa-sliders"></i> Admin Control Vault</button>
+                <button class="theme-toggle" onclick="toggleTheme()"><i class="fa-solid fa-moon"></i></button>
+            </div>
         </header>
 
+        <div id="adminDrawer" class="admin-drawer hidden">
+            <h3 style="color:var(--ou-gold); font-size:0.9rem; margin-bottom:1rem; text-transform:uppercase;"><i class="fa-solid fa-user-shield"></i> Update Accurate Corporate Standing Metrics</h3>
+            <div class="form-grid">
+                <div><label style="font-size:0.75rem; color:var(--text-muted);">Instagram Followers</label><input type="text" id="adm-ig" value="179K"></div>
+                <div><label style="font-size:0.75rem; color:var(--text-muted);">TikTok Followers</label><input type="text" id="adm-tt" value="3.2K"></div>
+                <div><label style="font-size:0.75rem; color:var(--text-muted);">YouTube Subs</label><input type="text" id="adm-yt" value="10.5K"></div>
+                <div><label style="font-size:0.75rem; color:var(--text-muted);">Facebook Likes</label><input type="text" id="adm-fb" value="100K+"></div>
+                <div><label style="font-size:0.75rem; color:var(--text-muted);">LinkedIn Members</label><input type="text" id="adm-li" value="22K+"></div>
+            </div>
+            <button onclick="saveAdminProfileOverrides()" style="padding:0.4rem 1rem; font-size:0.8rem; margin-top:0.5rem;">Save & Override Metrics</button>
+        </div>
+
         <div id="view-dash">
-            
             <div class="panel" style="margin-bottom:1.5rem;">
-                <div class="panel-title">Verified Corporate Account Footprints</div>
+                <div class="panel-title">Active Corporate Account Standing Parameters</div>
                 <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 1rem;">
                     <div style="background:var(--bg-secondary); padding:1rem; border-radius:8px; border-top:3px solid #e1306c;">
                         <span style="font-size:0.8rem; color:var(--text-muted);"><i class="fa-brands fa-instagram"></i> Instagram</span>
-                        <h2 style="margin-top:5px; font-size:1.4rem;">179K</h2>
-                    </div>
-                    <div style="background:var(--bg-secondary); padding:1rem; border-radius:8px; border-top:3px solid #1877f2;">
-                        <span style="font-size:0.8rem; color:var(--text-muted);"><i class="fa-brands fa-facebook"></i> Facebook</span>
-                        <h2 style="margin-top:5px; font-size:1.4rem;">100K+</h2>
-                    </div>
-                    <div style="background:var(--bg-secondary); padding:1rem; border-radius:8px; border-top:3px solid #ff0000;">
-                        <span style="font-size:0.8rem; color:var(--text-muted);"><i class="fa-brands fa-youtube"></i> YouTube</span>
-                        <h2 style="margin-top:5px; font-size:1.4rem;">10.5K</h2>
+                        <h2 style="margin-top:5px; font-size:1.4rem;" id="lbl-ig">179K</h2>
                     </div>
                     <div style="background:var(--bg-secondary); padding:1rem; border-radius:8px; border-top:3px solid #ffffff;">
                         <span style="font-size:0.8rem; color:var(--text-muted);"><i class="fa-brands fa-tiktok"></i> TikTok</span>
-                        <h2 style="margin-top:5px; font-size:1.4rem;">92K+</h2>
+                        <h2 style="margin-top:5px; font-size:1.4rem;" id="lbl-tt">3.2K</h2>
+                    </div>
+                    <div style="background:var(--bg-secondary); padding:1rem; border-radius:8px; border-top:3px solid #ff0000;">
+                        <span style="font-size:0.8rem; color:var(--text-muted);"><i class="fa-brands fa-youtube"></i> YouTube</span>
+                        <h2 style="margin-top:5px; font-size:1.4rem;" id="lbl-yt">10.5K</h2>
+                    </div>
+                    <div style="background:var(--bg-secondary); padding:1rem; border-radius:8px; border-top:3px solid #1877f2;">
+                        <span style="font-size:0.8rem; color:var(--text-muted);"><i class="fa-brands fa-facebook"></i> Facebook</span>
+                        <h2 style="margin-top:5px; font-size:1.4rem;" id="lbl-fb">100K+</h2>
                     </div>
                     <div style="background:var(--bg-secondary); padding:1rem; border-radius:8px; border-top:3px solid #0077b5;">
                         <span style="font-size:0.8rem; color:var(--text-muted);"><i class="fa-brands fa-linkedin"></i> LinkedIn</span>
-                        <h2 style="margin-top:5px; font-size:1.4rem;">22K+</h2>
+                        <h2 style="margin-top:5px; font-size:1.4rem;" id="lbl-li">22K+</h2>
                     </div>
                 </div>
             </div>
 
             <div class="panel" style="margin-bottom:1.5rem;">
-                <div class="panel-title">Guest Legacy Hub Filter</div>
+                <div class="panel-title">Guest Legacy Hub & Cross-Pollination Filter</div>
                 <div class="guest-grid">
                     <div class="guest-card active" onclick="filterByGuest('All', this)"><i class="fa-solid fa-users"></i><h4>All Campaigns</h4></div>
                     <div class="guest-card" onclick="filterByGuest('Karen Hunter', this)"><i class="fa-solid fa-microphone-lines"></i><h4>Karen Hunter</h4></div>
@@ -142,12 +155,7 @@
                 <div class="stat-card">
                     <div class="stat-header">Accumulated Filter Reach</div>
                     <div class="stat-number" id="kpi-total-views">0</div>
-                    <div class="stat-sub">Sum of Filtered Campaign Views</div>
-                </div>
-                <div class="stat-card">
-                    <div class="stat-header">Attributed ROI Bank Accounts</div>
-                    <div class="stat-number" style="color: var(--success);" id="kpi-roi-accounts">0</div>
-                    <div class="stat-sub">Calculated Product Conversions</div>
+                    <div class="stat-sub">Sum of Captured Campaign Views</div>
                 </div>
                 <div class="stat-card">
                     <div class="stat-header">⏱️ Best Deployment Target</div>
@@ -156,20 +164,13 @@
                 </div>
             </div>
 
-            <div class="dashboard-grid-3x">
+            <div class="dashboard-grid-3x" style="grid-template-columns: 1fr;">
                 <div class="panel">
-                    <div class="panel-title">Platform Efficiency Score (ROI Weight)</div>
-                    <table class="calendar-table" style="font-size:0.8rem;">
-                        <thead>
-                            <tr><th>Platform</th><th>Total Views</th><th>Index Score</th></tr>
-                        </thead>
+                    <div class="panel-title">Platform Efficiency Score Matrix (ROI Weight Index)</div>
+                    <table class="calendar-table">
+                        <thead><tr><th>Platform</th><th>Total Reach Views</th><th>Index Efficiency Score</th></tr></thead>
                         <tbody id="efficiencyTableBody"></tbody>
                     </table>
-                </div>
-
-                <div class="panel">
-                    <div class="panel-title">Dynamic Hashtag Organizer</div>
-                    <div id="hashtagContainer" style="display:flex; flex-direction:column;"></div>
                 </div>
             </div>
         </div>
@@ -178,7 +179,7 @@
             <div class="panel">
                 <div class="panel-title">
                     <span>Social Media Content Planner</span>
-                    <button class="action-btn" onclick="exportPlannerToCSV()" style="background:var(--bg-secondary); font-size:0.75rem; padding:0.4rem 0.8rem;"><i class="fa-solid fa-file-csv"></i> Backup Dataset (.CSV)</button>
+                    <button class="action-btn" onclick="exportPlannerToCSV()" style="background:var(--bg-secondary); font-size:0.75rem; padding:0.4rem 0.8rem;"><i class="fa-solid fa-file-csv"></i> Download Dataset (.CSV)</button>
                 </div>
                 
                 <form id="postForm" onsubmit="addNewContentItem(event)" style="margin-bottom:1.5rem;">
@@ -190,7 +191,7 @@
                             <option value="Facebook">Facebook</option>
                             <option value="LinkedIn">LinkedIn</option>
                         </select>
-                        <input type="text" id="formSubject" placeholder="Episode Frame / Details" required>
+                        <input type="text" id="formSubject" placeholder="Episode Frame / Description" required>
                         <select id="formGuest" required>
                             <option value="General/Other">Select Tracked Guest Group</option>
                             <option value="Karen Hunter">Karen Hunter</option>
@@ -199,11 +200,11 @@
                             <option value="Marc Morial">Marc Morial</option>
                             <option value="Felecia Hatcher">Felecia Hatcher</option>
                         </select>
-                        <input type="text" id="formTime" placeholder="Time" value="4:15 PM" required>
-                        <input type="number" id="formViews" placeholder="Initial Views" required>
+                        <input type="text" id="formTime" placeholder="Deployment Time" value="4:15 PM" required>
+                        <input type="number" id="formViews" placeholder="Views Reach Metric" required>
                     </div>
-                    <textarea id="formCaption" placeholder="Write context captions or copy blueprint layouts here..." rows="2" style="margin-bottom:1rem;" required></textarea>
-                    <button type="submit">Append To Planner Matrix</button>
+                    <textarea id="formCaption" placeholder="Paste structural caption string frames here... Include hashtags." rows="2" style="margin-bottom:1rem;" required></textarea>
+                    <button type="submit">Append To Planner Grid</button>
                 </form>
 
                 <div class="table-wrapper">
@@ -221,21 +222,17 @@
                 </div>
             </div>
         </div>
-
     </div>
 
     <script>
         let socialDataArray = [
-            { platform: "Facebook", subject: "EP 6 REEL 3 | What does NASSAU mean?", guest: "Frederica Wilson", caption: "Being called Nassau was meant to shame Congresswoman Wilson, but her grandmother taught her it meant greatness! #WhosYourMaHoney #FredericaWilson #Mindset", time: "4:00 PM", views: 26763 },
-            { platform: "Instagram", subject: "EP 6 REEL 3 | What does NASSAU mean?", guest: "Frederica Wilson", caption: "Being called Nassau was meant to shame... #WhosYourMaHoney #FredericaWilson #FinancialFreedom", time: "4:15 PM", views: 11936 },
-            { platform: "YouTube", subject: "TEASER EP 5 REEL 1 | In honor of Trayvon Martin", guest: "Sybrina Fulton", caption: "They didn’t see her when she was on her floor crying, but they see her standing now. #WhosYourMaHoney #JusticeForTrayvon #SocialJustice", time: "3:05 PM", views: 9470 },
-            { platform: "Instagram", subject: "EP 5 CAROUSEL POST", guest: "Sybrina Fulton", caption: "She proved that shame could not stop her from turning private heartbreak into a public movement. #WhosYourMaHoney #SybrinaFulton #TrayvonMartin", time: "4:20 PM", views: 8451 },
-            { platform: "Instagram", subject: "TEASER EP 5 REEL 1 | In honor of Trayvon Martin", guest: "Sybrina Fulton", caption: "They didn’t see her when she was on her floor crying... #WhosYourMaHoney #JusticeForTrayvon", time: "3:21 PM", views: 8326 },
-            { platform: "Instagram", subject: "EP 6 REEL 1 | The chip that built him.", guest: "Marc Morial", caption: "Let your work speak louder than assumptions. #WhosYourMaHoney #MarcMorial #OvercomingAdversity", time: "5:35 PM", views: 2055 },
-            { platform: "YouTube", subject: "EP 2 - QUICK CLIP 3 | Ever been fired?", guest: "Karen Hunter", caption: "This week on Who’s Your Ma Honey?, we’re diving into the highs and lows. #WhosYourMaHoney #NewPodcast #OwnYourTruth", time: "4:45 PM", views: 1882 },
-            { platform: "TikTok", subject: "EP 2 - QUICK CLIP 3 | Ever been fired?", guest: "Karen Hunter", caption: "This week on Who’s Your Ma Honey?, we’re diving into the highs and lows of you’re let go. Drop a comment below! #WhosYourMaHoney #NewPodcast #SuperPower", time: "4:46 PM", views: 2120 },
-            { platform: "TikTok", subject: "Ep 1 Linear Reel 2 | Trauma Caught Us By Surprise", guest: "General/Other", caption: "Stop burying your roots just to fit in. Have you ever felt like you had to hide your true self to belong? #WhosYourMaHoney #NewPodcast #OwnYourTruth", time: "10:19 AM", views: 1540 },
-            { platform: "Instagram", subject: "EP 8 Reel 2 | Stop pretending you're nobody.", guest: "Felecia Hatcher", caption: "Imposter syndrome is just a polite word for hiding. #WhosYourMaHoney #NewPodcast #SuperPower", time: "5:50 PM", views: 1174 }
+            { platform: "Facebook", subject: "EP 6 REEL 3 | What does NASSAU mean?", guest: "Frederica Wilson", caption: "Being called Nassau was meant to shame Congresswoman Wilson! #WhosYourMaHoney #FredericaWilson", time: "4:00 PM", views: 26763 },
+            { platform: "Instagram", subject: "EP 6 REEL 3 | What does NASSAU mean?", guest: "Frederica Wilson", caption: "Being called Nassau was meant to shame... #WhosYourMaHoney #FinancialFreedom", time: "4:15 PM", views: 11936 },
+            { platform: "YouTube", subject: "TEASER EP 5 REEL 1 | In honor of Trayvon Martin", guest: "Sybrina Fulton", caption: "They didn’t see her when she was on her floor crying. #WhosYourMaHoney #JusticeForTrayvon", time: "3:05 PM", views: 9470 },
+            { platform: "Instagram", subject: "EP 5 CAROUSEL POST", guest: "Sybrina Fulton", caption: "She turned private heartbreak into a public movement. #WhosYourMaHoney #SybrinaFulton", time: "4:20 PM", views: 8451 },
+            { platform: "TikTok", subject: "EP 2 - QUICK CLIP 3 | Ever been fired?", guest: "Karen Hunter", caption: "Drop a comment below! #WhosYourMaHoney #NewPodcast #SuperPower", time: "4:46 PM", views: 2120 },
+            { platform: "TikTok", subject: "Ep 1 Linear Reel 2 | Trauma Caught Us By Surprise", guest: "General/Other", caption: "Stop burying your roots just to fit in. #WhosYourMaHoney #OwnYourTruth", time: "10:19 AM", views: 1540 },
+            { platform: "Instagram", subject: "EP 8 Reel 2 | Stop pretending you're nobody.", guest: "Felecia Hatcher", caption: "Imposter syndrome is just a polite word for hiding. #WhosYourMaHoney #SuperPower", time: "5:50 PM", views: 1174 }
         ];
 
         let selectedGuestFilter = "All";
@@ -255,6 +252,36 @@
             document.documentElement.setAttribute('data-theme', current === 'light' ? 'dark' : 'light');
         }
 
+        function toggleAdminDrawer() {
+            document.getElementById('adminDrawer').classList.toggle('hidden');
+        }
+
+        // PATH B OVERRIDE ENGINE: SAVES ACCOUNTS DATA DIRECTLY IN LOCAL STORAGE
+        function saveAdminProfileOverrides() {
+            localStorage.setItem('ou_ig', document.getElementById('adm-ig').value);
+            localStorage.setItem('ou_tt', document.getElementById('adm-tt').value);
+            localStorage.setItem('ou_yt', document.getElementById('adm-yt').value);
+            localStorage.setItem('ou_fb', document.getElementById('adm-fb').value);
+            localStorage.setItem('ou_li', document.getElementById('adm-li').value);
+            loadSavedProfileMetrics();
+            toggleAdminDrawer();
+        }
+
+        function loadSavedProfileMetrics() {
+            document.getElementById('lbl-ig').innerText = localStorage.getItem('ou_ig') || '179K';
+            document.getElementById('lbl-tt').innerText = localStorage.getItem('ou_tt') || '3.2K';
+            document.getElementById('lbl-yt').innerText = localStorage.getItem('ou_yt') || '10.5K';
+            document.getElementById('lbl-fb').innerText = localStorage.getItem('ou_fb') || '100K+';
+            document.getElementById('lbl-li').innerText = localStorage.getItem('ou_li') || '22K+';
+
+            // Sync form fields values
+            document.getElementById('adm-ig').value = localStorage.getItem('ou_ig') || '179K';
+            document.getElementById('adm-tt').value = localStorage.getItem('ou_tt') || '3.2K';
+            document.getElementById('adm-yt').value = localStorage.getItem('ou_yt') || '10.5K';
+            document.getElementById('adm-fb').value = localStorage.getItem('ou_fb') || '100K+';
+            document.getElementById('adm-li').value = localStorage.getItem('ou_li') || '22K+';
+        }
+
         function filterByGuest(guestName, element) {
             document.querySelectorAll('.guest-card').forEach(c => c.classList.remove('active'));
             element.classList.add('active');
@@ -265,17 +292,15 @@
         function recalculateMetricsEngine() {
             let filtered = socialDataArray.filter(item => selectedGuestFilter === "All" || item.guest === selectedGuestFilter);
             let totalViews = filtered.reduce((sum, item) => sum + item.views, 0);
-            
             document.getElementById('kpi-total-views').innerText = totalViews.toLocaleString();
-            document.getElementById('kpi-roi-accounts').innerText = Math.floor(totalViews * 0.012).toLocaleString();
 
             let hourBuckets = {};
             filtered.forEach(item => {
-                let hourStr = item.time.split(':')[0] + (item.time.toLowerCase().includes('pm') ? ' PM' : ' AM');
-                hourBuckets[hourStr] = (hourBuckets[hourStr] || 0) + item.views;
+                let hr = item.time.split(':')[0] + (item.time.toLowerCase().includes('pm') ? ' PM' : ' AM');
+                hourBuckets[hr] = (hourBuckets[hr] || 0) + item.views;
             });
             let bestHour = "4:15 PM"; let maxV = 0;
-            for(let hr in hourBuckets) { if(hourBuckets[hr] > maxV) { maxV = hourBuckets[hr]; bestHour = hr + ":15 PM"; } }
+            for(let h in hourBuckets) { if(hourBuckets[h] > maxV) { maxV = hourBuckets[h]; bestHour = h + ":15 PM"; } }
             document.getElementById('kpi-best-time').innerText = filtered.length > 0 ? bestHour : 'N/A';
 
             let platforms = ['Instagram', 'YouTube', 'Facebook', 'TikTok', 'LinkedIn'];
@@ -284,27 +309,16 @@
             
             const effBody = document.getElementById('efficiencyTableBody'); effBody.innerHTML = '';
             platforms.forEach(p => {
-                let reach = platformTotals[p];
-                let effortWeight = p === 'YouTube' ? 3 : p === 'Instagram' ? 2 : 1;
-                effBody.innerHTML += `<tr><td><b>${p}</b></td><td>${reach.toLocaleString()}</td><td><span style="color:var(--ou-gold); font-weight:700;">${reach > 0 ? Math.floor(reach / effortWeight / 100) : 0} pts</span></td></tr>`;
-            });
-
-            let hashtagsCount = {};
-            filtered.forEach(item => {
-                let tags = item.caption.match(/#[A-Za-z0-9_]+/g) || [];
-                tags.forEach(t => { hashtagsCount[t] = (hashtagsCount[t] || 0) + item.views; });
-            });
-            let sortedTags = Object.keys(hashtagsCount).map(t => ({tag: t, v: hashtagsCount[t]})).sort((a,b) => b.v - a.v);
-            const tagContainer = document.getElementById('hashtagContainer'); tagContainer.innerHTML = '';
-            sortedTags.slice(0, 5).forEach(t => {
-                tagContainer.innerHTML += `<div class="tag-row"><span style="color:var(--ou-gold); font-weight:600;">${t.tag}</span><span>${t.v.toLocaleString()} views</span></div>`;
+                let r = platformTotals[p];
+                let weight = p === 'YouTube' ? 3 : p === 'Instagram' ? 2 : 1;
+                effBody.innerHTML += `<tr><td><b>${p}</b></td><td>${r.toLocaleString()}</td><td><span style="color:var(--ou-gold); font-weight:700;">${r > 0 ? Math.floor(r / weight / 100) : 0} pts</span></td></tr>`;
             });
         }
 
         function renderPlannerTable() {
             const tbody = document.getElementById('plannerTableBody'); tbody.innerHTML = '';
             socialDataArray.forEach(item => {
-                tbody.innerHTML += `<tr><td><b>${item.platform}</b></td><td><strong>[${item.guest}]</strong> ${item.subject}<br><span style="color:var(--text-muted); font-size:0.75rem;">${item.caption}</span></td><td><span class="status-pill status-posted">${item.time}</span></td><td><b>${item.views.toLocaleString()}</b></td></tr>`;
+                tbody.innerHTML += `<tr><td><b>${item.platform}</b></td><td><strong>[${item.guest}]</strong> ${item.subject}<br><span style="color:var(--text-muted); font-size:0.75rem;">${item.caption}</span></td><td><span class="status-pill">${item.time}</span></td><td><b>${item.views.toLocaleString()}</b></td></tr>`;
             });
         }
 
@@ -327,11 +341,15 @@
         function exportPlannerToCSV() {
             let csvContent = "data:text/csv;charset=utf-8,Platform,Subject,Guest Tracker,Caption,Time,Reach Views\n";
             socialDataArray.forEach(r => { csvContent += `"${r.platform}","${r.subject}","${r.guest}","${r.caption.replace(/"/g, '""')}","${r.time}",${r.views}\n`; });
-            let link = document.createElement("a"); link.setAttribute("href", encodeURI(csvContent)); link.setAttribute("download", "OneUnited_Content_Planner_Backup.csv");
+            let link = document.createElement("a"); link.setAttribute("href", encodeURI(csvContent)); link.setAttribute("download", "OneUnited_Metrics_Backup.csv");
             document.body.appendChild(link); link.click(); document.body.removeChild(link);
         }
 
-        window.onload = () => { recalculateMetricsEngine(); renderPlannerTable(); };
+        window.onload = () => { 
+            loadSavedProfileMetrics(); 
+            recalculateMetricsEngine(); 
+            renderPlannerTable(); 
+        };
     </script>
 </body>
 </html>
