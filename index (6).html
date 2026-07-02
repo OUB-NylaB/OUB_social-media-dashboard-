@@ -1,0 +1,2244 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>OneUnited Suite — Command Console</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600;9..144,700&family=Inter:wght@400;500;600;700;800&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.0/chart.umd.min.js"></script>
+<style>
+/* ============ THEME TOKENS ============ */
+:root{
+  --maroon:#9c2b3c;
+  --maroon-dim:#6e1f2c;
+  --gold:#d4a256;
+  --gold-dim:#a97f3f;
+  --green:#2f9e6e;
+  --blue:#3b82c4;
+  --amber:#d9a544;
+  --red:#c0392b;
+  --font-display:'Fraunces', serif;
+  --font-body:'Inter', sans-serif;
+  --font-mono:'IBM Plex Mono', monospace;
+  --radius:10px;
+}
+[data-theme="dark"]{
+  --bg:#0a0c11;
+  --bg-elevated:#0f1218;
+  --panel:#141821;
+  --panel-alt:#191d28;
+  --border:#262c3a;
+  --border-soft:#1d222d;
+  --text:#f2efe9;
+  --text-dim:#a8adba;
+  --text-faint:#6b7180;
+  --input-bg:#0d1017;
+  --shadow: 0 1px 0 rgba(255,255,255,0.03) inset, 0 8px 24px rgba(0,0,0,0.35);
+}
+[data-theme="light"]{
+  --bg:#f5f2ec;
+  --bg-elevated:#ffffff;
+  --panel:#ffffff;
+  --panel-alt:#f0ece3;
+  --border:#e0dace;
+  --border-soft:#ebe6da;
+  --text:#221f1a;
+  --text-dim:#5a5548;
+  --text-faint:#8b8577;
+  --input-bg:#ffffff;
+  --shadow: 0 1px 0 rgba(255,255,255,0.6) inset, 0 8px 24px rgba(80,60,30,0.08);
+}
+*{box-sizing:border-box; margin:0; padding:0;}
+html,body{height:100%;}
+body{
+  background:var(--bg);
+  color:var(--text);
+  font-family:var(--font-body);
+  font-size:14px;
+  line-height:1.5;
+  -webkit-font-smoothing:antialiased;
+  transition:background .25s ease, color .25s ease;
+}
+a{color:inherit;}
+button{font-family:inherit; cursor:pointer;}
+input,select,textarea{font-family:inherit; color:var(--text); background:var(--input-bg); border:1px solid var(--border);}
+::selection{background:var(--maroon); color:#fff;}
+
+/* ============ LAYOUT ============ */
+.app{display:flex; min-height:100vh;}
+
+/* SIDEBAR */
+.sidebar{
+  width:236px; flex-shrink:0;
+  background:var(--bg-elevated);
+  border-right:1px solid var(--border-soft);
+  display:flex; flex-direction:column;
+  padding:22px 14px;
+  position:sticky; top:0; height:100vh;
+}
+.brand{display:flex; align-items:center; gap:10px; padding:0 8px 20px; border-bottom:1px solid var(--border-soft); margin-bottom:18px;}
+.brand-badge{
+  width:34px; height:34px; border-radius:8px;
+  background:linear-gradient(150deg, var(--maroon), var(--maroon-dim));
+  display:flex; align-items:center; justify-content:center;
+  font-family:var(--font-display); font-weight:700; font-size:13px; color:var(--gold); flex-shrink:0;
+  box-shadow:0 2px 8px rgba(156,43,60,0.4);
+}
+.brand-name{font-family:var(--font-display); font-weight:600; font-size:15.5px; letter-spacing:.2px;}
+.brand-name span{color:var(--gold);}
+.brand-sub{font-size:10px; color:var(--text-faint); text-transform:uppercase; letter-spacing:1.4px; margin-top:1px;}
+
+.nav{display:flex; flex-direction:column; gap:3px; flex:1;}
+.nav-item{
+  display:flex; align-items:center; gap:11px;
+  padding:10px 12px; border-radius:8px;
+  color:var(--text-dim); font-size:13.5px; font-weight:500;
+  background:transparent; border:none; text-align:left; width:100%;
+  transition:background .15s, color .15s;
+}
+.nav-item svg{width:16px; height:16px; flex-shrink:0; opacity:.85;}
+.nav-item:hover{background:var(--panel-alt); color:var(--text);}
+.nav-item.active{background:var(--maroon); color:#fff;}
+.nav-item.active svg{opacity:1;}
+.nav-divider{height:1px; background:var(--border-soft); margin:10px 4px;}
+.nav-label{font-size:10px; text-transform:uppercase; letter-spacing:1.2px; color:var(--text-faint); padding:6px 12px 4px;}
+
+.sidebar-foot{padding-top:14px; border-top:1px solid var(--border-soft); font-size:11px; color:var(--text-faint);}
+.sync-dot{display:inline-block; width:6px; height:6px; border-radius:50%; background:var(--green); margin-right:6px; box-shadow:0 0 0 3px rgba(47,158,110,0.15);}
+
+/* MAIN */
+.main{flex:1; min-width:0; display:flex; flex-direction:column;}
+.topbar{
+  display:flex; align-items:center; justify-content:space-between;
+  padding:22px 32px; border-bottom:1px solid var(--border-soft);
+  position:sticky; top:0; background:var(--bg); z-index:20;
+}
+.topbar h1{font-family:var(--font-display); font-size:26px; font-weight:600; letter-spacing:.2px;}
+.topbar p{color:var(--text-dim); font-size:13px; margin-top:2px;}
+.topbar-actions{display:flex; align-items:center; gap:10px;}
+
+.btn{
+  display:inline-flex; align-items:center; gap:7px;
+  padding:9px 15px; border-radius:8px; border:1px solid var(--border);
+  background:var(--panel); color:var(--text); font-size:13px; font-weight:600;
+  transition:all .15s;
+}
+.btn:hover{border-color:var(--gold-dim); transform:translateY(-1px);}
+.btn-primary{background:var(--maroon); border-color:var(--maroon); color:#fff;}
+.btn-primary:hover{background:#b23347; border-color:#b23347;}
+.btn-gold{background:var(--gold); border-color:var(--gold); color:#1a1408;}
+.btn-gold:hover{background:#e0ad63;}
+.btn-ghost{background:transparent; border-color:var(--border);}
+.btn-sm{padding:5px 10px; font-size:12px;}
+.btn-icon{width:36px; height:36px; padding:0; justify-content:center; border-radius:8px;}
+.btn[disabled]{opacity:.45; cursor:not-allowed; transform:none;}
+
+.view{padding:26px 32px 60px; display:none;}
+.view.active{display:block;}
+
+/* CARDS */
+.grid-4{display:grid; grid-template-columns:repeat(4,1fr); gap:16px;}
+.grid-2{display:grid; grid-template-columns:repeat(2,1fr); gap:16px;}
+@media (max-width:1100px){.grid-4{grid-template-columns:repeat(2,1fr);}}
+
+.card{
+  background:var(--panel); border:1px solid var(--border-soft); border-radius:var(--radius);
+  padding:18px; box-shadow:var(--shadow);
+}
+.metric-card{border-left:3px solid var(--maroon); position:relative; overflow:hidden;}
+.metric-card .m-label{display:flex; align-items:center; gap:7px; font-size:11.5px; text-transform:uppercase; letter-spacing:1px; color:var(--text-faint); font-weight:600;}
+.metric-card .m-value{font-family:var(--font-mono); font-size:30px; font-weight:600; margin-top:8px; letter-spacing:-.5px;}
+.metric-card .m-delta{font-size:12px; margin-top:5px; font-weight:600;}
+.m-up{color:var(--green);} .m-down{color:var(--red);}
+
+.panel{background:var(--panel); border:1px solid var(--border-soft); border-radius:var(--radius); box-shadow:var(--shadow); margin-bottom:18px;}
+.panel-head{display:flex; align-items:center; justify-content:space-between; padding:16px 20px; border-bottom:1px solid var(--border-soft);}
+.panel-head h3{font-family:var(--font-display); font-size:16px; font-weight:600;}
+.panel-head .eyebrow{font-size:10.5px; text-transform:uppercase; letter-spacing:1.2px; color:var(--gold-dim); font-weight:700; margin-bottom:3px;}
+.panel-body{padding:20px;}
+
+/* TABLES */
+table{width:100%; border-collapse:collapse;}
+th{
+  text-align:left; font-size:10.5px; text-transform:uppercase; letter-spacing:1px;
+  color:var(--text-faint); font-weight:700; padding:10px 14px; border-bottom:1px solid var(--border-soft);
+  background:var(--panel-alt);
+}
+th:first-child{border-radius:6px 0 0 0;} th:last-child{border-radius:0 6px 0 0;}
+td{padding:12px 14px; border-bottom:1px solid var(--border-soft); font-size:13px; vertical-align:middle;}
+tr:last-child td{border-bottom:none;}
+tr:hover td{background:var(--panel-alt);}
+.table-wrap{overflow-x:auto; border-radius:8px; border:1px solid var(--border-soft);}
+.mono{font-family:var(--font-mono);}
+
+/* BADGES */
+.badge{display:inline-flex; align-items:center; gap:5px; padding:3px 9px; border-radius:20px; font-size:11px; font-weight:700; letter-spacing:.2px;}
+.badge-dot{width:6px; height:6px; border-radius:50%;}
+.badge-notstarted{background:rgba(107,113,128,.15); color:var(--text-dim);}
+.badge-notstarted .badge-dot{background:var(--text-dim);}
+.badge-scheduled{background:rgba(59,130,196,.15); color:var(--blue);}
+.badge-scheduled .badge-dot{background:var(--blue);}
+.badge-drafted{background:rgba(217,165,68,.15); color:var(--amber);}
+.badge-drafted .badge-dot{background:var(--amber);}
+.badge-posted{background:rgba(47,158,110,.15); color:var(--green);}
+.badge-posted .badge-dot{background:var(--green);}
+.badge-inprogress{background:rgba(168,85,247,.15); color:#c99bfb;}
+.badge-inprogress .badge-dot{background:#c99bfb;}
+.badge-canceled{background:rgba(192,57,43,.15); color:var(--red);}
+.badge-canceled .badge-dot{background:var(--red);}
+.badge-approved{background:rgba(47,158,110,.15); color:var(--green);}
+.badge-rejected{background:rgba(192,57,43,.15); color:var(--red);}
+.badge-pending{background:rgba(217,165,68,.15); color:var(--amber);}
+.badge-platform{background:var(--panel-alt); color:var(--text); border:1px solid var(--border);}
+.tag-blog{background:rgba(99,102,241,.15); color:#a5a8f5;}
+.tag-podcast{background:rgba(168,85,247,.15); color:#c99bfb;}
+.tag-social{background:rgba(20,184,166,.15); color:#5fd8c8;}
+.tag-press{background:rgba(217,165,68,.15); color:var(--amber);}
+
+/* FORMS */
+.field{display:flex; flex-direction:column; gap:5px; margin-bottom:14px;}
+.field label{font-size:11.5px; font-weight:600; color:var(--text-dim); text-transform:uppercase; letter-spacing:.6px;}
+.field input, .field select, .field textarea{
+  padding:9px 11px; border-radius:7px; font-size:13.5px; width:100%;
+}
+.field textarea{resize:vertical; min-height:80px;}
+.field input:focus, .field select:focus, .field textarea:focus{outline:2px solid var(--gold-dim); outline-offset:0;}
+.row{display:flex; gap:12px;}
+.row > .field{flex:1;}
+
+.chip-row{display:flex; gap:8px; flex-wrap:wrap;}
+.chip{
+  padding:7px 14px; border-radius:20px; border:1px solid var(--border); background:var(--panel);
+  font-size:12.5px; font-weight:600; color:var(--text-dim);
+}
+.chip.active{background:var(--maroon); border-color:var(--maroon); color:#fff;}
+
+/* MISC */
+.flex-between{display:flex; align-items:center; justify-content:space-between;}
+.hint{font-size:12px; color:var(--text-faint); margin-top:6px;}
+.divider{height:1px; background:var(--border-soft); margin:16px 0;}
+.empty{padding:40px 20px; text-align:center; color:var(--text-faint);}
+.empty svg{width:34px; height:34px; margin-bottom:10px; opacity:.5;}
+
+.callout{border-radius:8px; padding:13px 15px; font-size:12.5px; line-height:1.55; display:flex; gap:10px;}
+.callout-warn{background:rgba(217,165,68,.08); border:1px solid rgba(217,165,68,.3); color:var(--text);}
+.callout-info{background:rgba(59,130,196,.08); border:1px solid rgba(59,130,196,.3); color:var(--text);}
+.callout-ok{background:rgba(47,158,110,.08); border:1px solid rgba(47,158,110,.3); color:var(--text);}
+
+.dot-status{width:8px; height:8px; border-radius:50%; display:inline-block; margin-right:6px;}
+.dot-connected{background:var(--green); box-shadow:0 0 0 3px rgba(47,158,110,.15);}
+.dot-off{background:var(--text-faint);}
+.dot-error{background:var(--red);}
+
+/* INTEGRATIONS */
+.integration-card{display:flex; flex-direction:column; gap:12px;}
+.integration-top{display:flex; align-items:center; justify-content:space-between;}
+.integration-name{display:flex; align-items:center; gap:10px; font-weight:700; font-size:14.5px;}
+.integration-logo{width:30px; height:30px; border-radius:7px; display:flex; align-items:center; justify-content:center; font-size:13px; font-weight:800; color:#fff; flex-shrink:0;}
+.cap-tag{font-size:10px; padding:2px 7px; border-radius:5px; font-weight:700; letter-spacing:.3px;}
+.cap-live{background:rgba(47,158,110,.15); color:var(--green);}
+.cap-proxy{background:rgba(217,165,68,.15); color:var(--amber);}
+
+/* AGENT CARDS */
+.agent-card{border:1px solid var(--border-soft); border-radius:9px; padding:16px; background:var(--panel-alt);}
+.agent-head{display:flex; align-items:center; gap:10px; margin-bottom:8px;}
+.agent-avatar{width:32px; height:32px; border-radius:8px; background:linear-gradient(150deg,var(--gold),var(--gold-dim)); display:flex; align-items:center; justify-content:center; font-weight:800; color:#1a1408; font-size:13px;}
+.agent-instructions{font-size:12.5px; color:var(--text-dim); max-height:64px; overflow:hidden; line-height:1.5;}
+
+/* MODAL */
+.modal-overlay{
+  position:fixed; inset:0; background:rgba(0,0,0,.6); display:none; align-items:center; justify-content:center; z-index:100; padding:20px;
+}
+.modal-overlay.open{display:flex;}
+.modal{
+  background:var(--bg-elevated); border:1px solid var(--border); border-radius:14px; width:100%; max-width:520px;
+  max-height:88vh; overflow-y:auto; box-shadow:0 20px 60px rgba(0,0,0,.5);
+}
+.modal-head{display:flex; align-items:center; justify-content:space-between; padding:18px 22px; border-bottom:1px solid var(--border-soft);}
+.modal-head h3{font-family:var(--font-display); font-size:18px; font-weight:600;}
+.modal-body{padding:22px;}
+.modal-foot{display:flex; justify-content:flex-end; gap:10px; padding:16px 22px; border-top:1px solid var(--border-soft);}
+.close-x{background:none; border:none; color:var(--text-faint); font-size:20px; line-height:1;}
+
+/* toast */
+.toast-wrap{position:fixed; bottom:22px; right:22px; display:flex; flex-direction:column; gap:8px; z-index:200;}
+.toast{background:var(--panel); border:1px solid var(--border); border-left:3px solid var(--green); padding:12px 16px; border-radius:8px; font-size:13px; box-shadow:0 8px 24px rgba(0,0,0,.3); min-width:240px; animation:slidein .2s ease;}
+.toast.err{border-left-color:var(--red);}
+@keyframes slidein{from{opacity:0; transform:translateY(8px);} to{opacity:1; transform:translateY(0);}}
+
+/* scroll */
+::-webkit-scrollbar{width:9px; height:9px;}
+::-webkit-scrollbar-track{background:transparent;}
+::-webkit-scrollbar-thumb{background:var(--border); border-radius:6px;}
+
+.approve-btns{display:flex; gap:6px;}
+.pill-btn{border-radius:6px; border:1px solid var(--border); background:var(--panel); padding:5px 10px; font-size:11.5px; font-weight:700; color:var(--text-dim);}
+.pill-btn.yes.active{background:rgba(47,158,110,.15); border-color:var(--green); color:var(--green);}
+.pill-btn.no.active{background:rgba(192,57,43,.15); border-color:var(--red); color:var(--red);}
+.approved-by-input{width:110px; padding:5px 8px; font-size:12px; border-radius:6px;}
+
+.progress-bar{height:6px; background:var(--panel-alt); border-radius:4px; overflow:hidden; margin-top:8px;}
+.progress-fill{height:100%; background:linear-gradient(90deg,var(--gold-dim),var(--gold));}
+
+/* CALENDAR */
+.calendar-grid{display:grid; grid-template-columns:repeat(7,1fr); gap:6px;}
+.cal-daylabel{font-size:10.5px; text-transform:uppercase; letter-spacing:1px; color:var(--text-faint); text-align:center; padding-bottom:4px; font-weight:700;}
+.cal-cell{min-height:92px; border:1px solid var(--border-soft); border-radius:8px; padding:6px; background:var(--panel-alt); display:flex; flex-direction:column; gap:4px;}
+.cal-cell.other-month{opacity:.35;}
+.cal-daynum{font-size:11px; font-weight:700; color:var(--text-faint);}
+.cal-item{font-size:10.5px; padding:2px 6px; border-radius:5px; background:var(--maroon); color:#fff; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;}
+.cal-item.type-Blog{background:#6366f1;} .cal-item.type-Podcast{background:#a855f7;} .cal-item.type-Social{background:#14b8a6;} .cal-item.type-Press{background:var(--amber); color:#1a1408;}
+
+/* SENTIMENT / COMMENTS */
+.badge-sentiment-Positive{background:rgba(47,158,110,.15); color:var(--green);}
+.badge-sentiment-Neutral{background:rgba(107,113,128,.15); color:var(--text-dim);}
+.badge-sentiment-Negative{background:rgba(192,57,43,.15); color:var(--red);}
+.comment-card{border:1px solid var(--border-soft); border-radius:9px; padding:12px 14px; background:var(--panel-alt);}
+.comment-head{display:flex; align-items:center; gap:8px; margin-bottom:6px; font-size:12.5px;}
+.comment-user{font-weight:700;}
+
+/* NOTES */
+.note-item{border-bottom:1px solid var(--border-soft); padding:8px 0; font-size:12.5px;}
+.note-item:last-child{border-bottom:none;}
+.note-author{font-weight:700; margin-right:6px;}
+.note-time{color:var(--text-faint); font-size:11px;}
+.reach-input{width:90px; padding:5px 8px; font-size:12px; border-radius:6px;}
+.notes-btn{position:relative;}
+.notes-badge{position:absolute; top:-6px; right:-6px; background:var(--maroon); color:#fff; border-radius:10px; font-size:9px; padding:1px 5px; font-weight:700;}
+
+@media print{
+  .sidebar, .topbar, .btn, .chip-row{display:none !important;}
+  body{background:#fff !important; color:#000 !important;}
+  .panel, .card{box-shadow:none !important; border:1px solid #ccc !important;}
+}
+
+@media(max-width:900px){
+  .sidebar{position:fixed; left:-260px; z-index:50; transition:left .2s;}
+  .sidebar.open{left:0;}
+  .grid-4,.grid-2{grid-template-columns:1fr;}
+  .row{flex-direction:column;}
+  .view{padding:18px;}
+  .topbar{padding:16px 18px;}
+}
+</style>
+</head>
+<body data-theme="dark">
+
+<div class="app">
+  <!-- SIDEBAR -->
+  <aside class="sidebar" id="sidebar">
+    <div class="brand">
+      <div class="brand-badge">1U</div>
+      <div>
+        <div class="brand-name">OneUnited <span>Suite</span></div>
+        <div class="brand-sub">Command Console</div>
+      </div>
+    </div>
+    <nav class="nav" id="nav">
+      <div class="nav-label">Insights</div>
+      <button class="nav-item" data-view="overview"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 3v18h18"/><path d="M7 15l4-5 3 3 5-7"/></svg>Overview</button>
+      <button class="nav-item" data-view="analytics"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="10" width="4" height="10"/><rect x="10" y="6" width="4" height="14"/><rect x="17" y="13" width="4" height="7"/></svg>Analytics Matrix</button>
+      <div class="nav-label">Content</div>
+      <button class="nav-item" data-view="planner"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="17" rx="2"/><path d="M3 9h18"/><path d="M8 3v4M16 3v4"/></svg>Content Planner</button>
+      <button class="nav-item" data-view="approvals"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 6L9 17l-5-5"/></svg>Approvals</button>
+      <button class="nav-item" data-view="community"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 11.5a8.5 8.5 0 1 1-3.8-7.1"/><path d="M21 4l-9.5 9.5L8 10"/></svg>Community</button>
+      <div class="nav-label">Team</div>
+      <button class="nav-item" data-view="tasks"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>Task / Sprint Board</button>
+      <div class="nav-label">Automation</div>
+      <button class="nav-item" data-view="agents"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="4" y="8" width="16" height="12" rx="2"/><circle cx="9" cy="14" r="1.2" fill="currentColor"/><circle cx="15" cy="14" r="1.2" fill="currentColor"/><path d="M12 8V4M9 4h6"/></svg>AI Agents</button>
+      <button class="nav-item" data-view="integrations"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="6" cy="12" r="2.5"/><circle cx="18" cy="6" r="2.5"/><circle cx="18" cy="18" r="2.5"/><path d="M8.3 11l7.4-3.7M8.3 13l7.4 3.7"/></svg>Integrations</button>
+      <div class="nav-label">Governance</div>
+      <button class="nav-item" data-view="auditlog"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 8v4l2.5 2.5"/><circle cx="12" cy="12" r="9"/></svg>Audit Log</button>
+      <button class="nav-item" data-view="reports"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M7 3h8l4 4v14H5V3z"/><path d="M14 3v5h5M8 13h8M8 17h8"/></svg>Reports</button>
+    </nav>
+    <div class="sidebar-foot">
+      <span class="sync-dot"></span>Local data store · <span id="lastSavedTime">just now</span>
+    </div>
+  </aside>
+
+  <!-- MAIN -->
+  <main class="main">
+    <div class="topbar">
+      <div>
+        <h1 id="viewTitle">Overview</h1>
+        <p id="viewSub">Cross-platform performance at a glance</p>
+      </div>
+      <div class="topbar-actions">
+        <button class="btn btn-icon btn-ghost" id="themeToggle" title="Toggle theme">🌙</button>
+        <button class="btn btn-ghost" id="resetDataBtn">Reset demo data</button>
+      </div>
+    </div>
+
+    <!-- OVERVIEW -->
+    <section class="view active" id="view-overview">
+      <div class="grid-4" id="overviewMetrics"></div>
+      <div class="grid-2" style="margin-top:18px;">
+        <div class="panel">
+          <div class="panel-head"><div><div class="eyebrow">6-Month Trend</div><h3>Total Reach</h3></div></div>
+          <div class="panel-body"><canvas id="reachChart" height="220"></canvas></div>
+        </div>
+        <div class="panel">
+          <div class="panel-head"><div><div class="eyebrow">Follower Split</div><h3>Audience by Platform</h3></div></div>
+          <div class="panel-body"><canvas id="audienceChart" height="220"></canvas></div>
+        </div>
+      </div>
+      <div class="panel">
+        <div class="panel-head"><div><div class="eyebrow">Active Programming</div><h3>Shows & Recognition</h3></div></div>
+        <div class="panel-body grid-2">
+          <div>
+            <h4 style="margin-bottom:10px; font-size:13px; color:var(--text-dim); text-transform:uppercase; letter-spacing:.5px;">Active Podcasts</h4>
+            <div style="display:flex; flex-direction:column; gap:10px;">
+              <div class="callout callout-info">🎙️ <div><strong>OneTransaction Podcast</strong> — Hosted by Kevin Cohee. Ep 19 scheduled Jul 8, 2026.</div></div>
+              <div class="callout callout-info">🎙️ <div><strong>Who's Your Ma Honey?</strong> — Hosted by Teri Williams & Suzan McDowell. Ep 4 scheduled Jun 18, 2026.</div></div>
+            </div>
+          </div>
+          <div>
+            <h4 style="margin-bottom:10px; font-size:13px; color:var(--text-dim); text-transform:uppercase; letter-spacing:.5px;">Recognition</h4>
+            <ul style="list-style:none; display:flex; flex-direction:column; gap:8px; font-size:13px; color:var(--text-dim);">
+              <li>🏆 ICBA Top 50 Community Bank Leader in Social Media</li>
+              <li>🏆 Inc. Magazine — Best in Financial Services</li>
+              <li>🏆 11-time US Treasury Bank Enterprise Award recipient</li>
+              <li>⭐ TrustPilot 4.5 / BBB 4.38</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ANALYTICS -->
+    <section class="view" id="view-analytics">
+      <div class="callout callout-info" style="margin-bottom:18px;">
+        ℹ️ <div>Follower counts below were verified against live platform pages. Instagram, Facebook and LinkedIn are confirmed current figures; TikTok and YouTube are last-synced estimates — connect those platforms in <strong>Integrations</strong> for live numbers.</div>
+      </div>
+      <div class="grid-4" id="analyticsMetrics"></div>
+      <div class="grid-2" style="margin-bottom:18px;">
+        <div class="panel" style="margin-bottom:0;">
+          <div class="panel-head"><div><div class="eyebrow">Sprout Social</div><h3>Best Time to Post</h3></div></div>
+          <div class="panel-body" id="bestTimeCard"></div>
+        </div>
+        <div class="panel" style="margin-bottom:0;">
+          <div class="panel-head"><div><div class="eyebrow">Podcasts</div><h3>KPIs</h3></div></div>
+          <div class="panel-body">
+            <p style="font-size:13px; line-height:1.7;">Total listens: <strong>42.6K</strong> (+22% MoM)<br>Avg listen time: <strong>31 min</strong> (+4 min)<br>Completion rate: <strong>68%</strong></p>
+          </div>
+        </div>
+      </div>
+      <div class="panel" style="margin-top:18px;">
+        <div class="panel-head">
+          <div><div class="eyebrow">Sprout Social</div><h3>Performance Metrics</h3></div>
+          <button class="btn btn-sm btn-ghost" id="syncSproutBtn">🔄 Sync from Sprout</button>
+        </div>
+        <div class="panel-body">
+          <div id="sproutStatusBanner"></div>
+          <div class="table-wrap">
+            <table>
+              <thead><tr><th>Platform</th><th>Impressions</th><th>Engagements</th><th>Engagement Rate</th><th>Net Audience Growth</th></tr></thead>
+              <tbody id="efficiencyTable"></tbody>
+            </table>
+          </div>
+          <p class="hint">These are Sprout Social's own reported metrics (Impressions, Engagements, Engagement Rate, Net Audience Growth) — no custom formula. They populate once Sprout is connected and synced in <strong>Integrations</strong>.</p>
+        </div>
+      </div>
+      <div class="grid-2">
+        <div class="panel">
+          <div class="panel-head"><div><div class="eyebrow">Podcasts</div><h3>Platform Listen Share</h3></div></div>
+          <div class="panel-body"><canvas id="podcastChart" height="220"></canvas></div>
+        </div>
+        <div class="panel">
+          <div class="panel-head"><div><div class="eyebrow">Engagement</div><h3>Rate by Platform</h3></div></div>
+          <div class="panel-body"><canvas id="engagementChart" height="220"></canvas></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- CONTENT PLANNER -->
+    <section class="view" id="view-planner">
+      <div class="panel">
+        <div class="panel-head">
+          <div><div class="eyebrow">Add New Item</div><h3>Schedule Content</h3></div>
+          <div style="display:flex; gap:8px;">
+            <button class="btn btn-sm btn-ghost" id="importCsvBtn">📥 Import CSV</button>
+            <input type="file" id="csvFileInput" accept=".csv" style="display:none;">
+            <button class="btn btn-sm btn-ghost" id="exportCsvBtn">📤 Export CSV</button>
+          </div>
+        </div>
+        <div class="panel-body">
+          <div class="row">
+            <div class="field"><label>Platform</label>
+              <select id="pfPlatform"><option>Instagram</option><option>Facebook</option><option>TikTok</option><option>YouTube</option><option>LinkedIn</option><option>X/Twitter</option></select>
+            </div>
+            <div class="field"><label>Content type</label>
+              <select id="pfType"><option>Social</option><option>Blog</option><option>Podcast</option><option>Press</option></select>
+            </div>
+            <div class="field"><label>Status</label>
+              <select id="pfStatus"><option>Not Started</option><option>Drafted</option><option>In Progress</option><option>Scheduled</option><option>Posted</option><option>Canceled</option></select>
+            </div>
+          </div>
+          <div class="field"><label>Caption</label><textarea id="pfCaption" placeholder="Post copy, caption, or headline."></textarea></div>
+          <div class="row">
+            <div class="field" style="flex:2;"><label>Link</label><input id="pfLink" placeholder="https://drive.google.com/... or post URL"></div>
+            <div class="field" style="flex:2;"><label>Thumbnail / Cover Image</label><input id="pfThumbnail" placeholder="File name or description, e.g. EP 8 REEL 2 THUMBNAIL"></div>
+          </div>
+          <div class="field"><label>Hashtags</label><input id="pfHashtags" placeholder="#WhosYourMaHoney #NewPodcast #SuperPower"></div>
+          <div class="row">
+            <div class="field"><label>Post date</label><input type="date" id="pfDate"></div>
+            <div class="field"><label>Post time</label><input type="time" id="pfTime" value="16:00"></div>
+          </div>
+          <button class="btn btn-primary" id="addContentBtn">+ Add to Planner</button>
+        </div>
+      </div>
+
+      <div class="panel">
+        <div class="panel-head">
+          <div><div class="eyebrow">Pipeline</div><h3>Content Planner</h3></div>
+          <div class="chip-row">
+            <button class="chip active" id="plannerViewTable">📋 Table</button>
+            <button class="chip" id="plannerViewCalendar">🗓️ Calendar</button>
+          </div>
+        </div>
+        <div class="panel-body">
+          <div class="chip-row" id="platformFilter" style="margin-bottom:16px;">
+            <button class="chip active" data-platform="all">All Platforms</button>
+            <button class="chip" data-platform="Instagram">Instagram</button>
+            <button class="chip" data-platform="Facebook">Facebook</button>
+            <button class="chip" data-platform="TikTok">TikTok</button>
+            <button class="chip" data-platform="YouTube">YouTube</button>
+            <button class="chip" data-platform="LinkedIn">LinkedIn</button>
+          </div>
+          <div id="plannerTableView">
+            <div class="table-wrap">
+              <table>
+                <thead><tr><th>Platform</th><th>Type</th><th>Caption</th><th>Link</th><th>Hashtags</th><th>Date</th><th>Time</th><th>Status</th><th>Reach #</th><th>QA Approval</th><th>Notes</th><th></th></tr></thead>
+                <tbody id="plannerTable"></tbody>
+              </table>
+            </div>
+            <div class="empty" id="plannerEmpty" style="display:none;">No content matches this filter yet.</div>
+          </div>
+          <div id="plannerCalendarView" style="display:none;">
+            <div class="flex-between" style="margin-bottom:14px;">
+              <button class="btn btn-sm btn-ghost" id="calPrevBtn">← Prev</button>
+              <div style="font-family:var(--font-display); font-weight:600; font-size:16px;" id="calLabel"></div>
+              <button class="btn btn-sm btn-ghost" id="calNextBtn">Next →</button>
+            </div>
+            <div id="calendarGrid" class="calendar-grid"></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="panel">
+        <div class="panel-head"><div><div class="eyebrow">Learn From What Works</div><h3>Top Performers (Posted)</h3></div></div>
+        <div class="panel-body">
+          <div class="table-wrap">
+            <table>
+              <thead><tr><th>Platform</th><th>Content</th><th>Actual Reach</th></tr></thead>
+              <tbody id="topPerformersTable"></tbody>
+            </table>
+          </div>
+          <div class="empty" id="topPerformersEmpty" style="display:none;">Log actual reach on published posts (in the table above) to surface your top performers here.</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- APPROVALS -->
+    <section class="view" id="view-approvals">
+      <div class="grid-4" id="approvalMetrics"></div>
+      <div class="panel" style="margin-top:18px;">
+        <div class="panel-head"><div><div class="eyebrow">Review Queue</div><h3>Pending Approval</h3></div></div>
+        <div class="panel-body">
+          <div class="table-wrap">
+            <table>
+              <thead><tr><th>Platform</th><th>Content</th><th>Source</th><th>Date</th><th>Decision</th><th>Approved by</th></tr></thead>
+              <tbody id="approvalsTable"></tbody>
+            </table>
+          </div>
+          <div class="empty" id="approvalsEmpty" style="display:none;">
+            <div>✅ Nothing waiting on review. New drafts and agent-generated content will land here.</div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- COMMUNITY -->
+    <section class="view" id="view-community">
+      <div class="grid-4" id="communityMetrics"></div>
+      <div class="panel" style="margin-top:18px;">
+        <div class="panel-head">
+          <div><div class="eyebrow">Social Listening</div><h3>Add a Comment</h3></div>
+        </div>
+        <div class="panel-body">
+          <div class="row">
+            <div class="field"><label>Platform</label>
+              <select id="cmPlatform"><option>Instagram</option><option>Facebook</option><option>TikTok</option><option>YouTube</option><option>LinkedIn</option><option>X/Twitter</option></select>
+            </div>
+            <div class="field"><label>User</label><input id="cmUser" placeholder="@handle"></div>
+            <div class="field"><label>Sentiment</label>
+              <select id="cmSentiment"><option>Positive</option><option>Neutral</option><option>Negative</option></select>
+            </div>
+          </div>
+          <div class="field"><label>Comment</label><textarea id="cmText" placeholder="Paste the comment text here"></textarea></div>
+          <button class="btn btn-primary" id="addCommentBtn">+ Add Comment</button>
+        </div>
+      </div>
+      <div class="panel">
+        <div class="panel-head"><div><div class="eyebrow">Feed</div><h3>Community Comments</h3></div></div>
+        <div class="panel-body">
+          <div class="chip-row" id="sentimentFilter" style="margin-bottom:16px;">
+            <button class="chip active" data-sentiment="all">All</button>
+            <button class="chip" data-sentiment="Positive">Positive</button>
+            <button class="chip" data-sentiment="Neutral">Neutral</button>
+            <button class="chip" data-sentiment="Negative">Negative</button>
+          </div>
+          <div id="commentsList" style="display:flex; flex-direction:column; gap:10px;"></div>
+          <div class="empty" id="commentsEmpty" style="display:none;">No comments logged yet.</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- TASKS -->
+    <section class="view" id="view-tasks">
+      <div class="grid-4" id="taskMetrics"></div>
+      <div class="panel" style="margin-top:18px;">
+        <div class="panel-head"><div><div class="eyebrow">New</div><h3>Add Task</h3></div></div>
+        <div class="panel-body">
+          <div class="row">
+            <div class="field" style="flex:2;"><label>Task</label><input id="tkTitle" placeholder="e.g. Record Ma Honey Ep 4 — edit + upload"></div>
+            <div class="field"><label>Owner</label><input id="tkOwner" placeholder="e.g. Production"></div>
+            <div class="field"><label>Due date</label><input id="tkDue" type="date"></div>
+            <div class="field"><label>Status</label>
+              <select id="tkStatus"><option>Open</option><option>In Review</option><option>Done</option></select>
+            </div>
+          </div>
+          <button class="btn btn-primary" id="addTaskBtn">+ Add Task</button>
+        </div>
+      </div>
+      <div class="panel">
+        <div class="panel-head"><div><div class="eyebrow">Sprint</div><h3>Task Board</h3></div></div>
+        <div class="panel-body">
+          <div class="table-wrap">
+            <table>
+              <thead><tr><th>Task</th><th>Owner</th><th>Status</th><th>Due</th><th></th></tr></thead>
+              <tbody id="tasksTable"></tbody>
+            </table>
+          </div>
+          <div class="empty" id="tasksEmpty" style="display:none;">No tasks yet — add one above.</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- AUDIT LOG -->
+    <section class="view" id="view-auditlog">
+      <div class="callout callout-info" style="margin-bottom:18px;">🗂️ Every approve, reject, edit, delete, and agent-generation event is recorded here automatically — most recent first.</div>
+      <div class="panel">
+        <div class="panel-body">
+          <div class="table-wrap">
+            <table>
+              <thead><tr><th>Time</th><th>Actor</th><th>Action</th><th>Target</th><th>Details</th></tr></thead>
+              <tbody id="auditLogTable"></tbody>
+            </table>
+          </div>
+          <div class="empty" id="auditLogEmpty" style="display:none;">No activity recorded yet.</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- REPORTS -->
+    <section class="view" id="view-reports">
+      <div class="panel">
+        <div class="panel-head"><div><div class="eyebrow">Leadership Summary</div><h3>Monthly Report</h3></div>
+          <button class="btn btn-primary" id="generateReportBtn">🖨️ Generate & Print Report</button>
+        </div>
+        <div class="panel-body">
+          <p class="hint">Builds a print-ready one-pager summarizing followers, engagement, published content, pending approvals, and top performers — opens your browser's print dialog so you (or Teri/Kevin) can save it as a PDF in two clicks.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- AI AGENTS -->
+    <section class="view" id="view-agents">
+      <div class="callout callout-info" style="margin-bottom:18px;">
+        🔑 <div>Agents write content using the Claude API directly from your browser. Add your Anthropic API key once to enable generation — it's stored only in this browser's local storage, never sent anywhere but api.anthropic.com. <button class="btn btn-sm btn-ghost" id="setApiKeyBtn" style="margin-left:6px;">Set API key</button> <span id="apiKeyStatus" class="hint" style="margin-left:6px;"></span></div>
+      </div>
+      <div class="panel-head" style="padding:0 0 14px;">
+        <div><div class="eyebrow">Team</div><h3 style="font-family:var(--font-display); font-size:18px;">Your AI Agents</h3></div>
+        <button class="btn btn-primary" id="addAgentBtn">+ Add agent</button>
+      </div>
+      <div class="grid-2" id="agentsGrid"></div>
+    </section>
+
+    <!-- INTEGRATIONS -->
+    <section class="view" id="view-integrations">
+      <div class="callout callout-warn" style="margin-bottom:18px;">
+        ⚠️ <div>API tokens for platforms marked <span class="cap-tag cap-proxy">Needs proxy</span> should live in your proxy server's secrets, NOT pasted into this dashboard — set your proxy URL below once, then just hit "Connect" for each platform (no token field needed here for those). Platforms marked <span class="cap-tag cap-live">Browser OK</span>, like YouTube, can still take a key directly since that platform allows it safely.
+        </div>
+      </div>
+      <div class="panel">
+        <div class="panel-head"><div><div class="eyebrow">Backend Relay</div><h3>Proxy Server URL</h3></div></div>
+        <div class="panel-body">
+          <div class="row">
+            <div class="field" style="flex:2;"><label>Your deployed proxy URL</label><input id="proxyBaseUrlInput" placeholder="https://oneunited-proxy.yoursubdomain.workers.dev"></div>
+            <div class="field" style="align-self:flex-end;"><button class="btn btn-primary" id="saveProxyUrlBtn">Save</button></div>
+          </div>
+          <p class="hint" id="proxyUrlStatus"></p>
+        </div>
+      </div>
+      <div class="grid-2" id="integrationsGrid"></div>
+    </section>
+  </main>
+</div>
+
+<!-- MODAL: Agent editor -->
+<div class="modal-overlay" id="agentModal">
+  <div class="modal">
+    <div class="modal-head"><h3 id="agentModalTitle">New Agent</h3><button class="close-x" data-close="agentModal">×</button></div>
+    <div class="modal-body">
+      <input type="hidden" id="agentId">
+      <div class="field"><label>Agent name</label><input id="agentName" placeholder="e.g. Podcast Promo Writer"></div>
+      <div class="field"><label>Instructions (system prompt)</label><textarea id="agentInstructions" style="min-height:120px;" placeholder="You are OneUnited Bank's social copywriter. Write warm, community-centered captions about financial empowerment. Keep captions under 280 characters, always include a call to action and relevant hashtags like #BankBlack #CloseTheWealthGap."></textarea></div>
+      <div class="field"><label>Default platform</label>
+        <select id="agentPlatform"><option>Instagram</option><option>Facebook</option><option>TikTok</option><option>YouTube</option><option>LinkedIn</option></select>
+      </div>
+    </div>
+    <div class="modal-foot">
+      <button class="btn btn-ghost" data-close="agentModal">Cancel</button>
+      <button class="btn btn-primary" id="saveAgentBtn">Save agent</button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL: Generate content -->
+<div class="modal-overlay" id="generateModal">
+  <div class="modal">
+    <div class="modal-head"><h3>Generate Content</h3><button class="close-x" data-close="generateModal">×</button></div>
+    <div class="modal-body">
+      <input type="hidden" id="genAgentId">
+      <div class="field"><label>Agent</label><div id="genAgentName" style="font-weight:700;"></div></div>
+      <div class="field"><label>Topic / brief</label><textarea id="genTopic" placeholder="e.g. Promote Ep 19 of OneTransaction Podcast on investment portfolios for Black families, releasing July 8."></textarea></div>
+      <div class="field"><label>Platform</label>
+        <select id="genPlatform"><option>Instagram</option><option>Facebook</option><option>TikTok</option><option>YouTube</option><option>LinkedIn</option></select>
+      </div>
+      <div id="genResultWrap" style="display:none;">
+        <div class="divider"></div>
+        <div class="field"><label>Generated draft</label><textarea id="genResult" style="min-height:120px;"></textarea></div>
+      </div>
+      <div class="hint" id="genStatus"></div>
+    </div>
+    <div class="modal-foot">
+      <button class="btn btn-ghost" data-close="generateModal">Cancel</button>
+      <button class="btn btn-ghost" id="genRunBtn">Generate</button>
+      <button class="btn btn-primary" id="genAddBtn" style="display:none;">Add to Planner (pending approval)</button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL: API key -->
+<div class="modal-overlay" id="apiKeyModal">
+  <div class="modal">
+    <div class="modal-head"><h3>Anthropic API Key</h3><button class="close-x" data-close="apiKeyModal">×</button></div>
+    <div class="modal-body">
+      <div class="field"><label>API key</label><input id="apiKeyInput" type="password" placeholder="sk-ant-..."></div>
+      <p class="hint">Stored in this browser's localStorage only. Get a key at console.anthropic.com. Direct-from-browser calls require the <code>anthropic-dangerous-direct-browser-access</code> header, which this dashboard sets automatically.</p>
+    </div>
+    <div class="modal-foot">
+      <button class="btn btn-ghost" data-close="apiKeyModal">Cancel</button>
+      <button class="btn btn-primary" id="saveApiKeyBtn">Save key</button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL: Integration connect -->
+<div class="modal-overlay" id="connectModal">
+  <div class="modal">
+    <div class="modal-head"><h3 id="connectModalTitle">Connect Platform</h3><button class="close-x" data-close="connectModal">×</button></div>
+    <div class="modal-body">
+      <input type="hidden" id="connectPlatformKey">
+      <div id="connectFields"></div>
+      <div class="hint" id="connectHint"></div>
+    </div>
+    <div class="modal-foot">
+      <button class="btn btn-ghost" data-close="connectModal">Cancel</button>
+      <button class="btn btn-primary" id="saveConnectBtn">Save & Test</button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL: Notes thread -->
+<div class="modal-overlay" id="notesModal">
+  <div class="modal">
+    <div class="modal-head"><h3>Notes</h3><button class="close-x" data-close="notesModal">×</button></div>
+    <div class="modal-body">
+      <input type="hidden" id="notesContentId">
+      <div id="notesThread" style="margin-bottom:14px;"></div>
+      <div class="row">
+        <div class="field" style="flex:1;"><label>Your name</label><input id="noteAuthor" placeholder="e.g. Marketing"></div>
+      </div>
+      <div class="field"><label>Note</label><textarea id="noteText" placeholder="e.g. Swap the CTA to link in bio before scheduling"></textarea></div>
+    </div>
+    <div class="modal-foot">
+      <button class="btn btn-ghost" data-close="notesModal">Close</button>
+      <button class="btn btn-primary" id="addNoteBtn">Add note</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast-wrap" id="toastWrap"></div>
+
+<script>
+/* ==================================================================
+   STATE
+================================================================== */
+const STORAGE_KEY = 'oub_suite_v1';
+
+/* ==================================================================
+   FULL TRACKER IMPORT — every post from the uploaded May/June 2026
+   SCHEDULING_tracker PDF, grouped by piece (one row per platform,
+   matching the sheet's own layout). Fully blank calendar placeholder
+   slots (no caption/thumbnail/link at all) were left out since they
+   carry zero real content — everything else is included.
+================================================================== */
+function buildContentFromTracker(){
+  const P = [
+    { c:'EP 2 - QUICK CLIP 3 | Ever been fired? What happens next... This week on Who\'s Your Ma Honey?, we\'re diving into the highs and the lows of "you\'re let go." Drop a comment below: Have you ever been fired?', th:'EP 2 QUICK 3', h:'#WhosYourMaHoney #NewPodcast #SuperPower #OwnYourTruth', t:'Podcast', r:[
+      ['Instagram','Posted','5:06 PM','2026-05-14','Jay',1416],
+      ['TikTok','Scheduled','4:46 PM','2026-07-01','Jay',20],
+      ['YouTube','Scheduled','4:45 PM','2026-05-15','Jay',1882],
+      ['Facebook','Posted','1:07 PM','2026-05-15','Jay',951],
+      ['LinkedIn','Scheduled','4:05 PM','2026-05-15','Jay',51]]},
+    { c:'Ep 1 Linear Reel 2 | Trauma Caught Us By Surprise. Stop burying your roots just to fit in. Have you ever felt like you had to hide your true self to belong? WHO\'S YOUR MA HONEY? New episodes every Wednesday night / Thursday Midnight! Like • Subscribe • Follow. Drop a "100" or share your thoughts below.', th:'EP 1 REEL 2', h:'#WhosYourMaHoney #NewPodcast #SuperPower #OwnYourTruth', t:'Podcast', r:[
+      ['Instagram','Posted','5:30 PM','2026-05-16','Jay',1331],
+      ['YouTube','Posted','9:07 AM','2026-05-16','Jay',960],
+      ['TikTok','Posted','10:19 AM','2026-05-16','Jay',21],
+      ['Facebook','Posted','10:35 AM','2026-05-16','Jay',113],
+      ['LinkedIn','Posted','4:17 PM','2026-05-16','Jay',27]]},
+    { c:'EP 1 LINEAR REEL 3 — The incredible Dr. Delvena Thomas explains how to manage when life hits hard and we aren\'t always equipped with the tools to process it.', th:'EP 1 REEL 3', h:'#WhosYourMaHoney #NewPodcast #SuperPower #OwnYourTruth #Explore', t:'Podcast', r:[
+      ['Instagram','Posted','4:06 PM','2026-05-17','Jay',1675],
+      ['YouTube','Posted','9:25 AM','2026-05-17','Jay',1034],
+      ['TikTok','Posted','7:46 PM','2026-05-17','Jay',12],
+      ['Facebook','Posted','5:55 PM','2026-05-17','Jay',178],
+      ['LinkedIn','Posted','4:34 PM','2026-05-17','Jay',66]]},
+    { c:'Ep 2 Linear Short 2 (Option 1) | Stop Cosplaying Life. Stop cosplaying your own life. The legendary Karen Hunter joined us on Who\'s Your Ma Honey? to drop some heavy truths about authenticity. THE BIG QUESTION: Have you ever been fired?', th:'EP 2 REEL 2', h:'#WhosYourMaHoney #NewPodcast #SuperPower #OwnYourTruth #Explore', t:'Podcast', r:[
+      ['Instagram','Posted','5:22 PM','2026-05-18','Jay',1212],
+      ['YouTube','Posted','1:05 PM','2026-05-18','Jay',1075],
+      ['TikTok','Posted','4:02 PM','2026-05-18','Jay',null],
+      ['Facebook','Posted','1:08 PM','2026-05-18','Jay',403],
+      ['LinkedIn','Posted','2:02 PM','2026-05-18','Jay',null]]},
+    { c:'EP 2 CAROUSEL SWIPE POST — You might be measuring your success, your strength, and your story the wrong way. Karen Hunter joined us for Episode 2 of Who\'s Your Ma Honey?', th:'', h:'#WhosYourMaHoney #NewPodcast #SuperPower #OwnYourTruth #Explore', l:'https://drive.google.com/drive/folders/15WEi1SklTMgDb24wGmhuClUhLALozgAM', t:'Podcast', r:[
+      ['Instagram','Canceled','4:05 PM','2026-05-19','',null],
+      ['Facebook','Canceled','10:00 AM','2026-05-19','',null],
+      ['LinkedIn','Canceled','10:00 AM','2026-05-19','',null]]},
+    { c:'EP 2 SEGMENT VIDEO | STOP COSPLAYING LIFE', th:'', h:'', l:'https://drive.google.com/file/d/1UcstGJtQkYyMHuDvYOl7lWJ2bE0K1MA5/view?usp=drive_link', t:'Podcast', r:[
+      ['YouTube','Canceled','2:28 PM','2026-05-19','',null],
+      ['TikTok','Canceled','','2026-05-19','',null]]},
+    { c:'EP 2 - LINEAR REEL 3 — People will try to trap you inside the walls of their own limitations. Tune in to the full conversation on YouTube.', th:'', h:'#WhosYourMaHoney #KarenHunter #NewPodcast #SuperPower #OwnYourTruth #Explore', l:'https://drive.google.com/file/d/1sRz9OLMflLZuxIMvlh4uF0I6KneofTl2/view?usp=drive_link', t:'Podcast', r:[
+      ['Instagram','In Progress','','','',null],
+      ['YouTube','In Progress','','','',null],
+      ['TikTok','In Progress','','','',null],
+      ['Facebook','In Progress','','','',null],
+      ['LinkedIn','In Progress','','','',null]]},
+    { c:'EP 2 - QUICK CLIP 1 | This is why people try to shame you. People will use shame as a weapon to make your world as small as theirs. Karen Hunter addresses the reality of external judgment.', th:'', h:'#WhosYourMaHoney #KarenHunter #NewPodcast #SuperPower #Inspiration #Explore', l:'https://drive.google.com/file/d/1c9M2IJlOvxwZa4ZmzmeLeRzkU3HDSrN8/view?usp=drive_link', t:'Podcast', r:[
+      ['Instagram','Drafted','','','',null],
+      ['YouTube','Drafted','','','',null],
+      ['TikTok','Drafted','','','',null],
+      ['Facebook','Drafted','','','',null],
+      ['LinkedIn','Drafted','','','',null]]},
+    { c:'EP 2 - QUICK CLIP 4 | All people aren\'t good people. Not everyone is rooting for you, and not everyone has good intentions.', th:'', h:'#WhosYourMaHoney #KarenHunter #LifeLessons #PodcastClips #Inspiration', l:'https://drive.google.com/file/d/1Qo8e3quHoqdmTNL8gheof6w7S8-P53uG/view?usp=drive_link', t:'Podcast', r:[
+      ['Instagram','Drafted','','','',null],
+      ['YouTube','Drafted','','','',null],
+      ['TikTok','Drafted','','','',null],
+      ['Facebook','Drafted','','','',null],
+      ['LinkedIn','Drafted','','','',null]]},
+    { c:'EP 3 REEL 1 | I was ashamed of my gift. Adonnis Parker opens up about the years he spent lying to himself, suppressing his gift out of shame.', th:'EP3 REEL 1', h:'#WhosYourMaHoney #MindsetShift #ArtCommunity #BlackArt', t:'Podcast', r:[
+      ['Instagram','Posted','6:00 PM','2026-05-21','Jay',702],
+      ['YouTube','Posted','8:46 PM','2026-05-21','Jay',1041],
+      ['TikTok','Posted','6:20 PM','2026-05-21','Jay',14],
+      ['Facebook','Posted','5:32 PM','2026-05-21','Jay',566],
+      ['LinkedIn','Posted','5:31 PM','2026-05-21','Jay',45]]},
+    { c:'EP 3 REEL 2 | They laughed at my name. You don\'t have to trade your artistic soul just to prove you\'re "tough" enough for the world.', th:'EP3 REEL 2', h:'#WhosYourMaHoney #AddonisParker #NewPodcast #SuperPower #OwnYourTruth', t:'Podcast', r:[
+      ['Instagram','Posted','4:28 PM','2026-05-22','Jay',1347],
+      ['YouTube','Posted','4:54 PM','2026-05-22','Jay',1654],
+      ['TikTok','Posted','5:36 PM','2026-05-22','Jay',14],
+      ['Facebook','Posted','4:51 PM','2026-05-22','Jay',354],
+      ['LinkedIn','Posted','4:23 PM','2026-05-22','Jay',103]]},
+    { c:'EP 3 REEL 3 | They said stop painting black people. "They told me to stop painting dark skin and strong figures... But that wasn\'t my reality, and I refused to paint over my truth."', th:'EP3 REEL 3', h:'#WhosYourMaHoney #ChazGuest #NewPodcast #SuperPower #OwnYourTruth', t:'Podcast', r:[
+      ['Instagram','Posted','5:02 PM','2026-05-25','Jay',2916],
+      ['YouTube','Posted','9:08 AM','2026-05-25','Jay',1671],
+      ['TikTok','Posted','3:42 PM','2026-05-25','Jay',17],
+      ['Facebook','Posted','1:15 PM','2026-05-25','Jay',1982],
+      ['LinkedIn','Posted','2:16 PM','2026-05-25','Jay',66]]},
+    { c:'EP 4 QUICK 1 | Who did you side with growing up? Mayor Daniella Levine Cava explains how pushing through a lonely childhood launched her path to community leadership.', th:'', h:'#WhosYourMaHoney #DaniellaLevineCava #NewPodcast #SuperPower #OwnYourTruth', t:'Podcast', r:[
+      ['Instagram','Posted','5:45 PM','2026-05-28','Jay',930],
+      ['YouTube','Posted','6:15 PM','2026-05-28','Jay',734],
+      ['TikTok','Posted','6:00 PM','2026-05-28','Jay',13],
+      ['Facebook','Posted','5:45 PM','2026-05-28','Jay',695],
+      ['LinkedIn','Posted','5:40 PM','2026-05-28','Jay',33]]},
+    { c:'BLOG ARTICLE — True wealth building is a team sport, yet the legacy setup expects you to figure it out in isolation. Partnering with your bestie and leveraging AI clarity transforms budgeting into a shared power move.', th:'', h:'#FinancialFreedom #BeTheWiseOne #Explore', t:'Blog', r:[
+      ['Instagram','Posted','2:02 PM','2026-05-29','Jay',341]]},
+    { c:'EP 4 QUICK 2 | I was ashamed of this but didn\'t say it. @mayordlc shares how dealing with a tough home life as a kid gave her the exact perspective to protect her community.', th:'', h:'#WhosYourMaHoney #DaniellaLevineCava #NewPodcast #SuperPower #GenerationalWealth', t:'Podcast', r:[
+      ['Instagram','Posted','5:05 PM','2026-05-29','Jay',1445],
+      ['YouTube','Posted','5:04 PM','2026-05-29','Jay',1054],
+      ['TikTok','Posted','5:30 PM','2026-05-29','Jay',10],
+      ['Facebook','Posted','5:03 PM','2026-05-29','Jay',295],
+      ['LinkedIn','Posted','5:04 PM','2026-05-29','Jay',26]]},
+    { c:'EP 3 Quick 1 | They shamed me for being an artist. Going back to this gem from last week - Do not let negative opinions slow you down. @addonisparker', th:'', h:'#WhosYourMaHoney #AddonisParker #MoneyMindset #ArtEmpowerment #BlackArt', t:'Podcast', r:[
+      ['Instagram','Posted','11:42 AM','2026-05-30','Jay',1600],
+      ['YouTube','Posted','11:03 AM','2026-05-30','Jay',1118],
+      ['TikTok','Posted','11:40 AM','2026-05-30','Jay',37],
+      ['Facebook','Posted','11:00 AM','2026-05-30','Jay',696],
+      ['LinkedIn','Posted','11:00 AM','2026-05-30','Jay',104]]},
+    { c:'CAROUSEL POST — Your past experiences shouldn\'t dictate your shame, they should shape your standards. What did you accept then that you\'d change now?', th:'IG CAROUSEL SWIPE POST', h:'#WhosYourMaHoney #DaniellaLevineCava #NewPodcast #SuperPower #OwnYourPower', t:'Podcast', r:[
+      ['Instagram','Posted','4:21 PM','2026-05-30','Jay',1760]]},
+    { c:'EP 2 - QUICK CLIP 2 | Think of leaving the community? Think again. @karenhuntershow challenges the idea of moving away from the neighborhood once you achieve success.', th:'EP 2 QUICK 2', h:'#WhosYourMaHoney #ReelsViral #KarenHunter #Confidence #HumanBehavior', t:'Podcast', r:[
+      ['Instagram','Posted','12:16 PM','2026-05-31','Jay',573],
+      ['YouTube','Posted','12:51 PM','2026-05-31','Jay',746],
+      ['TikTok','Posted','12:15 PM','2026-05-31','Jay',5],
+      ['Facebook','Posted','2:02 PM','2026-05-31','Jay',597],
+      ['LinkedIn','Posted','11:05 AM','2026-05-31','Jay',64]]},
+    { c:'EP 2 QUICK 1 | This is why people try to shame you. Do you agree? Karen Hunter breaks down the reality of external judgment.', th:'EP 2 QUICK 1', h:'#WhosYourMaHoney #LevelUp #SuccessMindset #LeadershipDevelopment #RiseAbove #ProfessionalGrowth', t:'Podcast', r:[
+      ['Instagram','Posted','5:20 PM','2026-06-01','Jay',485],
+      ['YouTube','Posted','5:20 PM','2026-06-01','Jay',781],
+      ['TikTok','Posted','5:21 PM','2026-06-01','Jay',10],
+      ['Facebook','Posted','5:20 PM','2026-06-01','Jay',367],
+      ['LinkedIn','Posted','5:20 PM','2026-06-01','Jay',64]]},
+    { c:'EP 4 REEL 1 | My father was a bully. Living with a bully and being a school outcast was a lonely reality for the Mayor. But surviving that rough home life made her a leader who fights back against bullying today.', th:'EP 4 REEL 1', h:'#WhosYourMaHoney #DaniellaLevineCava #NewPodcast #SuperPower #OwnYourPower', t:'Podcast', r:[
+      ['Instagram','Posted','8:01 PM','2026-06-01','Jay',451],
+      ['YouTube','Posted','8:00 PM','2026-06-01','Jay',1095],
+      ['TikTok','Posted','8:13 PM','2026-06-01','Jay',5],
+      ['Facebook','Posted','8:00 PM','2026-06-01','Jay',272],
+      ['LinkedIn','Canceled','','2026-06-01','Jay',null]]},
+    { c:'EP 4 REEL 2 | I felt very lonely. Fitting in isn\'t about changing who you are to please the crowd, it\'s about learning how to listen and be present.', th:'EP 4 REEL 2', h:'#WhosYourMaHoney #DaniellaLevineCava #NewPodcast #SuperPower #Resilience', t:'Podcast', r:[
+      ['Instagram','Posted','5:09 PM','2026-06-02','Jay',436],
+      ['YouTube','Posted','5:06 PM','2026-06-02','Jay',562],
+      ['TikTok','Posted','5:06 PM','2026-06-02','Jay',null],
+      ['Facebook','Posted','5:05 PM','2026-06-02','Jay',null],
+      ['LinkedIn','Posted','5:13 PM','2026-06-02','Jay',null]]},
+    { c:'TEASER — EP 5 REEL 1 | In honor of Trayvon Martin. They didn\'t see her when she was on her floor crying, but they see her standing now. @sybrinafulton @thetrayvonmartinfoundation. Premiere drops tonight at midnight EST!', th:'', h:'#WhosYourMaHoney #JusticeForTrayvon #SocialJustice #SayHisName', t:'Podcast', r:[
+      ['Instagram','Posted','3:21 PM','2026-06-03','Jay',8326],
+      ['YouTube','Posted','3:05 PM','2026-06-03','Jay',9470],
+      ['TikTok','Posted','3:05 PM','2026-06-03','Jay',122],
+      ['Facebook','Posted','4:05 PM','2026-06-03','Jay',2031],
+      ['LinkedIn','Posted','5:05 PM','2026-06-03','Jay',12]]},
+    { c:'CAROUSEL POST', th:'IG CAROUSEL SWIPE', h:'', t:'Podcast', r:[
+      ['Instagram','In Progress','','2026-06-04','',null],
+      ['YouTube','Not Started','','2026-06-04','',null],
+      ['TikTok','Not Started','','2026-06-04','',null],
+      ['Facebook','Not Started','','2026-06-04','',null],
+      ['LinkedIn','Not Started','','2026-06-04','',null]]},
+    { c:'EP 5 REEL 2 | They blamed Trayvon. They actually tried to tell a grieving mother that her 17-year-old child was "armed with the sidewalk."', th:'', h:'#WhosYourMaHoney #JusticeForTrayvon #SocialJustice #SayHisName', t:'Podcast', r:[
+      ['Instagram','Posted','5:20 PM','2026-06-04','Jay',803],
+      ['YouTube','Posted','5:20 PM','2026-06-04','Jay',694],
+      ['TikTok','Posted','5:18 PM','2026-06-04','Jay',178],
+      ['Facebook','Posted','5:10 PM','2026-06-04','Jay',2834],
+      ['LinkedIn','Posted','5:19 PM','2026-06-04','Jay',56]]},
+    { c:'EP 5 REEL 3 | Tupac\'s mom knew my pain. Grief hits differently when it\'s witnessed by someone who truly understands your pain.', th:'EP 5 REEL 3 THUMBNAIL', h:'#WhosYourMaHoney #SybrinaFulton #OwnYourTruth #Tupac', t:'Podcast', r:[
+      ['Instagram','Posted','4:47 PM','2026-06-05','Jay',6091],
+      ['YouTube','Posted','4:45 PM','2026-06-05','Jay',688],
+      ['TikTok','Posted','4:45 PM','2026-06-05','Jay',219],
+      ['Facebook','Posted','4:45 PM','2026-06-05','Jay',1220],
+      ['LinkedIn','Posted','4:45 PM','2026-06-05','Jay',78]]},
+    { c:'CAROUSEL POST — She proved that shame could not stop her from turning private heartbreak into a public movement. @sybrinafulton', th:'', h:'#WhosYourMaHoney #SybrinaFulton #ExplorePage #TrayvonMartin', t:'Podcast', r:[
+      ['Instagram','Posted','4:20 PM','2026-06-06','Jay',8451]]},
+    { c:'EP 5 QUICK 1 | The pain you didn\'t see. Most people see the strength in public, but very few see the tears on the floor or the broken pieces behind closed doors.', th:'', h:'#WhosYourMaHoney #SybrinaFulton #NewPodcast #SuperPower #OwnYourTruth', t:'Podcast', r:[
+      ['Instagram','Posted','5:32 PM','2026-06-08','Jay',1101],
+      ['YouTube','Posted','5:30 PM','2026-06-08','Jay',198],
+      ['TikTok','Posted','5:30 PM','2026-06-08','Jay',213],
+      ['Facebook','Posted','5:30 PM','2026-06-08','Jay',951],
+      ['LinkedIn','Posted','5:30 PM','2026-06-08','Jay',39]]},
+    { c:'Blog Article — Renting should never be a waiting room that completely stops you from building your own generational wealth. New blog article has been published.', th:'', h:'#WhosYourMaHoney #WealthHacking #FinancialFreedom', t:'Blog', r:[
+      ['Instagram','Posted','2:05 PM','2026-06-09','Jay',600],
+      ['Facebook','Posted','2:05 PM','2026-06-09','Jay',609],
+      ['LinkedIn','Posted','2:05 PM','2026-06-09','Jay',87]]},
+    { c:'EP 6 REEL 1 | From "Nassau" to Congresswoman. Sitting down with Congresswoman Frederica Wilson. She reminds us that our roots are never a limitation, but the exact blueprint for our highest elevation.', th:'EP 6 REEL 1 THUMBNAIL', h:'#WhosYourMaHoney #Podcast #EmbraceYourGift', t:'Podcast', r:[
+      ['Instagram','Posted','5:00 PM','2026-06-10','Jay',6225],
+      ['YouTube','Posted','5:00 PM','2026-06-10','Jay',87],
+      ['TikTok','Posted','5:00 PM','2026-06-10','Jay',169],
+      ['Facebook','Posted','5:00 PM','2026-06-10','Jay',1225],
+      ['LinkedIn','Posted','5:00 PM','2026-06-10','Jay',95]]},
+    { c:'EP 6 REEL 3 | What does "NASSAU" mean? Being called "Nassau" was meant to shame Congresswoman Wilson, but her grandmother taught her it actually meant she was destined for greatness!', th:'EP 6 REEL 3 THUMBNAIL', h:'#WhosYourMaHoney #FredericaWilson #Congresswoman #FinancialFreedom #Mindset', t:'Podcast', r:[
+      ['Instagram','Posted','4:15 PM','2026-06-12','Teri',26108],
+      ['YouTube','Posted','4:34 PM','2026-06-12','Teri',1662],
+      ['TikTok','Posted','5:49 PM','2026-06-12','Teri',70],
+      ['Facebook','Posted','4:00 PM','2026-06-12','Teri',26763],
+      ['LinkedIn','Posted','4:00 PM','2026-06-12','Teri',76]]},
+    { c:'KAREN HUNTER — EP 2 QUICK 4 | All people aren\'t good people. All people aren\'t good people? What does that mean to you??', th:'EP 2 QUICK 4 THUMBNAIL', h:'#WhosYourMaHoney #Podcast #KarenHunter #StoryTelling #Explore', t:'Podcast', r:[
+      ['Instagram','Posted','11:09 AM','2026-06-13','Teri',770],
+      ['YouTube','Posted','9:08 AM','2026-06-13','Teri',721],
+      ['TikTok','Posted','11:26 AM','2026-06-13','Teri',52],
+      ['Facebook','Posted','10:21 AM','2026-06-13','Teri',489],
+      ['LinkedIn','Posted','11:26 AM','2026-06-13','Teri',57]]},
+    { c:'EP 6 REEL 2 | "Leave him alone!" The community will never grow stronger if we tear each other down. #CrabsInaBarrel', th:'EP 6 REEL 2 THUMBNAIL', h:'#WhosYourMaHoney #FredericaWilson #Congresswoman #Mindset', t:'Podcast', r:[
+      ['Instagram','Posted','12:15 PM','2026-06-14','Teri',997],
+      ['YouTube','Posted','11:52 AM','2026-06-14','Teri',644],
+      ['TikTok','Posted','1:28 PM','2026-06-14','Teri',27],
+      ['Facebook','Posted','2:59 PM','2026-06-14','Teri',229],
+      ['LinkedIn','Posted','4:08 PM','2026-06-14','Teri',40]]},
+    { c:'EP 6 QUICK 1 | I wasn\'t looking for validation. You don\'t need permission from anyone else to step up and make things right.', th:'EP 6 QUICK 1 THUMBNAIL', h:'#WhosYourMaHoney #FredericaWilson #FinancialFreedom #Mindset', t:'Podcast', r:[
+      ['Instagram','Posted','2:35 PM','2026-06-15','Teri',126],
+      ['YouTube','Posted','12:15 PM','2026-06-15','Teri',1213],
+      ['TikTok','Posted','3:29 PM','2026-06-15','Teri',45],
+      ['Facebook','Posted','1:24 PM','2026-06-15','Teri',1044],
+      ['LinkedIn','Posted','2:06 PM','2026-06-15','Teri',56]]},
+    { c:'CAROUSEL POST', th:'IG CAROUSEL SWIPE POST', h:'', t:'Podcast', r:[
+      ['Instagram','Posted','10:30 AM','2026-06-16','Jay',3327]]},
+    { c:'Teri Talks with Teri Williams | Who\'s Your Ma Honey? It\'s about more dollars than cents. Before you can address your money you need to address your shame. Are you ashamed of being financially illiterate? That\'s undeserved shame.', th:'TERI TALKS', h:'#TeriTalks #UndeservedShame #OneUnitedBank', t:'Podcast', r:[
+      ['Instagram','Posted','2:00 PM','2026-06-16','Jay',478],
+      ['YouTube','Posted','2:00 PM','2026-06-16','Jay',228],
+      ['TikTok','Posted','2:00 PM','2026-06-16','Jay',38],
+      ['Facebook','Posted','1:58 PM','2026-06-16','Jay',462],
+      ['LinkedIn','Posted','1:36 PM','2026-06-16','Jay',77]]},
+    { c:'Juneteenth Flyer — HOLIDAY (BANK CLOSURE). In honor of Juneteenth, OneUnited Bank will observe the federal holiday on Friday, June 19th, and our branches will be closed. Mobile app, online banking, and ATMs remain open 24/7.', th:'', h:'', t:'Social', r:[
+      ['Instagram','Posted','11:00 AM','2026-06-17','Teri/Jay',700],
+      ['YouTube','Posted','11:00 AM','2026-06-17','Teri/Jay',null],
+      ['TikTok','Posted','11:00 AM','2026-06-17','Teri/Jay',null],
+      ['Facebook','Posted','11:00 AM','2026-06-17','Teri/Jay',2300],
+      ['LinkedIn','Posted','11:00 AM','2026-06-17','Teri/Jay',128]]},
+    { c:'Karen Hunter Segment Video — After being told her work was "not up to par" and getting fired early in her career, Pulitzer Prize-winning journalist Karen Hunter was forced to confront rejection and self-doubt. She doubled down and went on to land front-page stories at one of the biggest newspapers in the country.', th:'EP 2 VIDEO SEGMENT', h:'', t:'Podcast', r:[
+      ['YouTube','Posted','12:00 AM','2026-06-16','',16026],
+      ['TikTok','Not Started','','2026-06-16','',null],
+      ['Facebook','Not Started','','2026-06-16','',null],
+      ['LinkedIn','Not Started','','2026-06-16','',null]]},
+    { c:'EP 7 REEL 1 | The chip that built him. Let your work speak louder than their assumptions. @marcmorial — new episode out now!', th:'EP 7 REEL 1 THUMBNAIL', h:'#WhosYourMaHoney #MarcMorial #OvercomingAdversity #Podcast', t:'Podcast', r:[
+      ['Instagram','Posted','5:35 PM','2026-06-18','Jay',2055],
+      ['YouTube','Posted','5:33 PM','2026-06-18','Jay',1183],
+      ['TikTok','Posted','5:33 PM','2026-06-18','Jay',23],
+      ['Facebook','Posted','5:33 PM','2026-06-18','Jay',721],
+      ['LinkedIn','Posted','5:33 PM','2026-06-18','Jay',null]]},
+    { c:'EP 7 REEL 2 | I was segregated at age 5. Experiencing segregation at 5 years old will either completely crush your spirit or build an unstoppable drive to change the world. @marcmorial', th:'EP 7 REEL 2 THUMBNAIL', h:'#WhosYourMaHoney #MarcMorial #OvercomingAdversity #Podcast', t:'Podcast', r:[
+      ['Instagram','Posted','12:45 PM','2026-06-19','Jay',727],
+      ['YouTube','Posted','12:45 PM','2026-06-19','Jay',770],
+      ['TikTok','Posted','12:45 PM','2026-06-19','Jay',null],
+      ['Facebook','Posted','12:45 PM','2026-06-19','Jay',987],
+      ['LinkedIn','Posted','12:45 PM','2026-06-19','Jay',null]]},
+    { c:'EP 7 QUICK 1 | I\'m gonna get my respect. If they refuse to respect your presence, make them respect your results.', th:'EP 7 QUICK 1 THUMBNAIL', h:'#WhosYourMaHoney #MarcMorial #OvercomingAdversity #Podcast', t:'Podcast', r:[
+      ['Instagram','Posted','4:39 PM','2026-06-20','Jay',460],
+      ['YouTube','Posted','4:39 PM','2026-06-20','Jay',703],
+      ['TikTok','Posted','4:39 PM','2026-06-20','Jay',null],
+      ['Facebook','Posted','4:39 PM','2026-06-20','Jay',665],
+      ['LinkedIn','Posted','4:39 PM','2026-06-20','Jay',null]]},
+    { c:'CAROUSEL POST - Marc Morial — Sometimes people tell you who you are before you even know who you are yourself. People will label you: Too young, Too black, Too inexperienced, Too privileged. Will you believe them?', th:'IG CAROUSEL SWIPE POST', h:'#WhosYourMaHoney #MarcMorial #OvercomingAdversity #Podcast', t:'Podcast', r:[
+      ['Instagram','Posted','8:59 PM','2026-06-21','Jay',5950]]},
+    { c:'CAROUSEL POST - Addonis Parker — Being different makes people uncomfortable but that\'s not your burden to bear. Don\'t turn their words into your truth! @addonisparker', th:'', h:'#WhosYourMaHoney #AddonisParker #Artist #OvercomingAdversity #Podcast', t:'Podcast', r:[
+      ['Instagram','Posted','','','Jay',3058]]},
+    { c:'EP 7 REEL 3 | I had a chip on my shoulder. A chip on your shoulder is a beautiful thing when you use it to build a legacy instead of letting it build resentment.', th:'EP 7 REEL 3 THUMBNAIL', h:'#WhosYourMaHoney #MarcMorial #OvercomingAdversity #Podcast', t:'Podcast', r:[
+      ['Instagram','Posted','5:25 PM','2026-06-23','',3808],
+      ['YouTube','Posted','5:25 PM','2026-06-23','',1098],
+      ['TikTok','Posted','5:25 PM','2026-06-23','',null],
+      ['Facebook','Posted','5:25 PM','2026-06-23','',null],
+      ['LinkedIn','Posted','5:25 PM','2026-06-23','',null]]},
+    { c:'EP 6 QUICK 2 | You can\'t talk to me like that.', th:'EP 6 QUICK 2 THUMBNAIL', h:'', t:'Podcast', r:[
+      ['Instagram','Not Started','','2026-06-24','',null],
+      ['YouTube','Not Started','','2026-06-24','',null],
+      ['TikTok','Not Started','','2026-06-24','',null],
+      ['Facebook','Not Started','','2026-06-24','',null],
+      ['LinkedIn','Not Started','','2026-06-24','',null]]},
+    { c:'EP 8 Reel 1 | From \'C\' student to CEO. Think you need a perfect 4.0 GPA to win at life? Think again. Felecia Hatcher (CEO of Black Ambition Prize) joins the podcast this week.', th:'EP 8 REEL 1 THUMBNAIL', h:'#WhosYourMaHoney #FeleciaHatcher #PodcastLife #SuperPower', t:'Podcast', r:[
+      ['Instagram','Posted','5:14 PM','2026-06-24','',1300],
+      ['YouTube','Posted','5:14 PM','2026-06-24','',664],
+      ['TikTok','Posted','5:14 PM','2026-06-24','',null],
+      ['Facebook','Posted','5:14 PM','2026-06-24','',494],
+      ['LinkedIn','Posted','5:14 PM','2026-06-24','',null]]},
+    { c:'EP 8 Reel 2 | Stop pretending you\'re nobody. Imposter syndrome is just a polite word for hiding. Every late night and early morning was the down payment on the success you\'re trying to hide from.', th:'EP 8 REEL 2 THUMBNAIL', h:'#WhosYourMaHoney #NewPodcast #SuperPower #OwnYourTruth', t:'Podcast', r:[
+      ['Instagram','Scheduled','5:50 PM','2026-06-25','Jay',1100],
+      ['YouTube','Scheduled','5:51 PM','2026-06-25','Jay',1174],
+      ['TikTok','Scheduled','5:50 PM','2026-06-25','Jay',null],
+      ['Facebook','Scheduled','5:50 PM','2026-06-25','Jay',336],
+      ['LinkedIn','Scheduled','5:50 PM','2026-06-25','Jay',null]]},
+    { c:'CAROUSEL POST - Felecia Hatcher — If you think you have imposter syndrome... you do. You don\'t overcome it by becoming more confident. You overcome it by trusting who you are.', th:'IG CAROUSEL SWIPE POST', h:'#WhosYourMaHoney #PodcastLife #ImposterSyndrome #OwnYourTruth #Explore', t:'Podcast', r:[
+      ['Instagram','Drafted','4:29 PM','2026-06-26','',null]]},
+    { c:'CAROUSEL POST - Karen Hunter', th:'IG CAROUSEL SWIPE POST', h:'', t:'Podcast', r:[
+      ['Instagram','Not Started','','2026-06-26','',null]]},
+    { c:'EP 8 Reel 3 | You belong in the room.', th:'EP 8 REEL 3 THUMBNAIL', h:'', t:'Podcast', r:[
+      ['Instagram','Not Started','','2026-06-26','',null],
+      ['YouTube','Not Started','','2026-06-26','',null],
+      ['TikTok','Not Started','','2026-06-26','',null],
+      ['Facebook','Not Started','','2026-06-26','',null],
+      ['LinkedIn','Not Started','','2026-06-26','',null]]},
+    { c:'EP 8 Quick 1 | You judged your genius wrong. If you judge a fish solely by its ability to climb a tree, it will live its entire life genuinely believing it is stupid.', th:'EP 8 - QUICK 1 THUMBNAIL', h:'#WhosYourMaHoney #PodcastLife #Perspective #SelfBelief #DailyMotivation', t:'Podcast', r:[
+      ['Instagram','Drafted','','2026-06-27','',null],
+      ['YouTube','Drafted','','2026-06-27','',null],
+      ['TikTok','Drafted','','2026-06-27','',null],
+      ['Facebook','Drafted','','2026-06-27','',null],
+      ['LinkedIn','Drafted','','2026-06-27','',null]]},
+    { c:'EP 8 Quick 2 | Help is not weakness.', th:'EP 8 QUICK 2 THUMBNAIL', h:'', t:'Podcast', r:[
+      ['Instagram','Not Started','','2026-06-28','',null],
+      ['YouTube','Not Started','','2026-06-28','',null],
+      ['TikTok','Not Started','','2026-06-28','',null],
+      ['Facebook','Not Started','','2026-06-28','',null],
+      ['LinkedIn','Not Started','','2026-06-28','',null]]},
+    { c:'Segment Video - Sybrina Fulton', th:'EP5 Video Segment', h:'', t:'Podcast', r:[
+      ['YouTube','Not Started','','2026-06-30','',null]]},
+    { c:'EP 7 QUICK 2 | It\'s a double edged sword.', th:'EP 7 QUICK 2 THUMBNAIL', h:'', t:'Podcast', r:[
+      ['Instagram','Not Started','','2026-06-23','',null],
+      ['YouTube','Not Started','','2026-06-23','',null],
+      ['TikTok','Not Started','','2026-06-23','',null],
+      ['Facebook','Not Started','','2026-06-23','',null],
+      ['LinkedIn','Not Started','','2026-06-23','',null]]}
+  ];
+  const items = [];
+  let n = 0;
+  P.forEach(piece=>{
+    piece.r.forEach(row=>{
+      n++;
+      const [platform,status,time,date,qa,reach] = row;
+      items.push({
+        id: 'imp'+n,
+        platform, type: piece.t,
+        caption: piece.c,
+        link: piece.l||'',
+        thumbnail: piece.th||'',
+        hashtags: piece.h||'',
+        date: date||'', time: time||'',
+        status, reach: reach===undefined?null:reach,
+        approval: { decision: qa ? 'approved' : 'pending', by: qa||'' },
+        source: 'import', notes: []
+      });
+    });
+  });
+  return items;
+}
+
+const DEFAULT_STATE = {
+  theme: 'dark',
+  metrics: {
+    Instagram: { followers: 179000, engagement: 8.5, verified: true, growth: 3100 },
+    Facebook:  { followers: 259000, engagement: 6.2, verified: true, growth: 1400 },
+    LinkedIn:  { followers: 7400,   engagement: 3.9, verified: true, growth: 220 },
+    TikTok:    { followers: 3200,   engagement: 9.1, verified: false, growth: 480 },
+    YouTube:   { followers: 10500,  engagement: 7.1, verified: false, growth: 640 }
+  },
+  reachTrend: [38000, 41500, 47200, 52800, 58900, 64200],
+  reachTrendMonths: ['Feb','Mar','Apr','May','Jun','Jul'],
+  content: buildContentFromTracker(),
+  tasks: [
+    { id: 't1', title: 'Publish Ma Honey Ep 3 — Marc Morial', owner: 'Teri W.', status: 'Done', due: '' },
+    { id: 't2', title: 'Juneteenth BankBlack social campaign live', owner: 'Marketing', status: 'Done', due: '' },
+    { id: 't3', title: 'Record Ma Honey Ep 4 — Congresswoman Wilson (edit + upload)', owner: 'Production', status: 'Open', due: '2026-06-28' },
+    { id: 't4', title: 'Draft blog: first investment portfolio guide', owner: 'Content', status: 'Open', due: '2026-06-30' },
+    { id: 't5', title: 'Schedule OneTransaction Ep 19 on all platforms', owner: 'Digital', status: 'Open', due: '2026-07-05' },
+    { id: 't6', title: 'Q3 Lift Up homeownership press release — draft', owner: 'Comms', status: 'Open', due: '2026-07-15' }
+  ],
+  comments: [
+    { id: 'cm1', platform: 'Instagram', user: '@JasmineW', sentiment: 'Positive', text: 'The Ma Honey episode made me cry. I finally told my daughter about her great-grandmother. Thank you OneUnited.', date: '2026-05-10' },
+    { id: 'cm2', platform: 'YouTube', user: '@DavidM', sentiment: 'Positive', text: 'OneTransaction episode on home ownership changed how I think about building credit. Applied for my first mortgage.', date: '2026-05-28' },
+    { id: 'cm3', platform: 'Facebook', user: '@KCollins', sentiment: 'Neutral', text: 'When does the next BankBlack card design drop? Love that you\'re the largest Black-owned bank but need more card options.', date: '2026-06-02' },
+    { id: 'cm4', platform: 'X/Twitter', user: '@RobynA', sentiment: 'Positive', text: 'Sybrina Fulton on #MaHoney podcast was powerful. OneUnited keeps showing up for community.', date: '2026-06-07' }
+  ],
+  auditLog: [],
+  calendarCursor: null,
+  agents: [
+    { id: 'a1', name: 'Podcast Promo Writer', platform: 'Instagram', instructions: 'You are OneUnited Bank\'s social copywriter for the OneTransaction and Who\'s Your Ma Honey? podcasts. Write warm, community-centered captions rooted in financial empowerment and closing the racial wealth gap. Keep captions tight (under 280 characters for Instagram/X, longer is fine for LinkedIn), end with a clear call to action, and include 2-4 relevant hashtags such as #BankBlack #CloseTheWealthGap #WhosYourMaHoney #OneTransaction. Never invent quotes or guest details that were not provided in the brief.' },
+    { id: 'a2', name: 'Financial Literacy Educator', platform: 'LinkedIn', instructions: 'You write short-form educational content for OneUnited Bank on financial literacy topics (credit building, homeownership, saving, investing) aimed at helping Black families build generational wealth. Tone: encouraging, plain-language, no jargon. Always end with one practical, actionable next step the reader can take today.' }
+  ],
+  integrations: {
+    meta:      { name: 'Meta (Facebook & Pages)', connected: false, token: '', capability: 'proxy', lastSync: null },
+    instagram: { name: 'Instagram (Graph API)',   connected: false, token: '', capability: 'proxy', lastSync: null },
+    tiktok:    { name: 'TikTok for Business',     connected: false, token: '', capability: 'proxy', lastSync: null },
+    linkedin:  { name: 'LinkedIn Marketing API',  connected: false, token: '', capability: 'proxy', lastSync: null },
+    youtube:   { name: 'YouTube Data API v3',     connected: false, token: '', channelId: '', capability: 'live', lastSync: null },
+    ga4:       { name: 'Google Analytics 4',      connected: false, token: '', propertyId: '', capability: 'proxy', lastSync: null },
+    sprout:    { name: 'Sprout Social',           connected: false, token: '', capability: 'proxy', lastSync: null, metrics: null, bestTime: null }
+  },
+  anthropicKey: '',
+  proxyBaseUrl: ''
+};
+
+function loadState(){
+  try{
+    const raw = localStorage.getItem(STORAGE_KEY);
+    if(!raw) return structuredClone(DEFAULT_STATE);
+    const parsed = JSON.parse(raw);
+    // shallow-merge to survive schema additions
+    return Object.assign(structuredClone(DEFAULT_STATE), parsed, {
+      metrics: Object.assign({}, DEFAULT_STATE.metrics, parsed.metrics),
+      integrations: Object.assign({}, DEFAULT_STATE.integrations, parsed.integrations)
+    });
+  }catch(e){ return structuredClone(DEFAULT_STATE); }
+}
+function saveState(){
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+  document.getElementById('lastSavedTime').textContent = new Date().toLocaleTimeString();
+}
+
+let state = loadState();
+
+/* ==================================================================
+   UTIL
+================================================================== */
+function fmt(n){
+  if(n === null || n === undefined) return '—';
+  if(n >= 1000000) return (n/1000000).toFixed(1)+'M';
+  if(n >= 1000) return (n/1000).toFixed(1)+'K';
+  return n.toString();
+}
+function uid(){ return 'id'+Math.random().toString(36).slice(2,10); }
+function toast(msg, isErr){
+  const wrap = document.getElementById('toastWrap');
+  const el = document.createElement('div');
+  el.className = 'toast'+(isErr?' err':'');
+  el.textContent = msg;
+  wrap.appendChild(el);
+  setTimeout(()=>{ el.remove(); }, 4200);
+}
+function logAudit(actor, action, target, details){
+  state.auditLog.unshift({ id: uid(), ts: Date.now(), actor: actor||'You', action, target, details: details||'' });
+  if(state.auditLog.length > 500) state.auditLog.length = 500;
+}
+function statusBadgeClass(s){
+  return { Posted:'badge-posted', Scheduled:'badge-scheduled', Drafted:'badge-drafted', 'In Progress':'badge-inprogress', Canceled:'badge-canceled', 'Not Started':'badge-notstarted' }[s] || 'badge-notstarted';
+}
+function typeTagClass(t){
+  return { Blog:'tag-blog', Podcast:'tag-podcast', Social:'tag-social', Press:'tag-press' }[t] || 'tag-social';
+}
+
+/* ==================================================================
+   THEME
+================================================================== */
+function applyTheme(){
+  document.body.setAttribute('data-theme', state.theme);
+  document.getElementById('themeToggle').textContent = state.theme === 'dark' ? '🌙' : '☀️';
+}
+document.getElementById('themeToggle').addEventListener('click', ()=>{
+  state.theme = state.theme === 'dark' ? 'light' : 'dark';
+  applyTheme(); saveState(); renderCharts();
+});
+
+/* ==================================================================
+   NAVIGATION
+================================================================== */
+const viewMeta = {
+  overview:     ['Overview', 'Cross-platform performance at a glance'],
+  analytics:    ['Analytics Matrix', 'Verified follower counts, engagement, and platform efficiency'],
+  planner:      ['Content Planner', 'Schedule, track, and manage every post across platforms'],
+  approvals:    ['Approvals', 'Review and sign off on content before it goes live'],
+  community:    ['Community', 'What people are actually saying, tagged by sentiment'],
+  tasks:        ['Task / Sprint Board', 'Who\'s doing what, and by when'],
+  agents:       ['AI Agents', 'Configure assistants that draft content for your team'],
+  integrations: ['Integrations', 'Connect analytics and publishing platforms'],
+  auditlog:     ['Audit Log', 'Every approval, rejection, and edit — timestamped'],
+  reports:      ['Reports', 'A print-ready summary for leadership']
+};
+document.querySelectorAll('.nav-item').forEach(btn=>{
+  btn.addEventListener('click', ()=>{
+    const v = btn.dataset.view;
+    document.querySelectorAll('.nav-item').forEach(b=>b.classList.remove('active'));
+    btn.classList.add('active');
+    document.querySelectorAll('.view').forEach(s=>s.classList.remove('active'));
+    document.getElementById('view-'+v).classList.add('active');
+    document.getElementById('viewTitle').textContent = viewMeta[v][0];
+    document.getElementById('viewSub').textContent = viewMeta[v][1];
+    if(v === 'overview' || v === 'analytics') setTimeout(renderCharts, 30);
+  });
+});
+document.querySelector('.nav-item[data-view="overview"]').classList.add('active');
+
+/* ==================================================================
+   OVERVIEW + ANALYTICS RENDER
+================================================================== */
+function totalFollowers(){
+  return Object.values(state.metrics).reduce((a,m)=>a+m.followers,0);
+}
+function avgEngagement(){
+  const vals = Object.values(state.metrics).map(m=>m.engagement);
+  return (vals.reduce((a,b)=>a+b,0)/vals.length).toFixed(1);
+}
+function renderMetricCard(label, value, delta, icon){
+  return `<div class="card metric-card">
+    <div class="m-label">${icon||''} ${label}</div>
+    <div class="m-value">${value}</div>
+    ${delta ? `<div class="m-delta m-up">${delta}</div>` : ''}
+  </div>`;
+}
+function renderOverview(){
+  const totalReach = state.reachTrend[state.reachTrend.length-1];
+  document.getElementById('overviewMetrics').innerHTML =
+    renderMetricCard('Total Reach (30d)', fmt(totalReach), '▲ 8.9% vs last month') +
+    renderMetricCard('Total Followers', fmt(totalFollowers()), '▲ across all platforms') +
+    renderMetricCard('Avg Engagement', avgEngagement()+'%', 'Above industry avg (2-3%)') +
+    renderMetricCard('Content Published (30d)', state.content.filter(c=>c.status==='Posted').length, `${state.content.filter(c=>c.approval.decision==='pending').length} awaiting approval`);
+}
+function renderAnalytics(){
+  const html = Object.entries(state.metrics).map(([k,m])=>{
+    return `<div class="card metric-card">
+      <div class="m-label">${m.verified? '✅':'🔄'} ${k}</div>
+      <div class="m-value">${fmt(m.followers)}</div>
+      <div class="m-delta m-up">+${fmt(m.growth)} this month · ${m.engagement}% eng.</div>
+    </div>`;
+  }).join('');
+  document.getElementById('analyticsMetrics').innerHTML = html;
+  renderEfficiencyTable();
+  renderBestTimeCard();
+}
+function renderBestTimeCard(){
+  const sprout = state.integrations.sprout;
+  const el = document.getElementById('bestTimeCard');
+  if(!sprout.connected){
+    el.innerHTML = `<div class="callout callout-warn">🔌 Connect Sprout Social to get a real, data-backed best-time-to-post recommendation. Sprout calculates this from your account's actual historical engagement — we don't estimate it ourselves.</div>`;
+    return;
+  }
+  if(!sprout.bestTime){
+    el.innerHTML = `<div class="callout callout-info">⏳ Connected — recommendation will appear after the next successful sync.</div>`;
+    return;
+  }
+  el.innerHTML = `<div style="font-family:var(--font-mono); font-size:30px; font-weight:600; color:var(--gold);">${sprout.bestTime}</div><p class="hint">Based on Sprout Social's historical engagement analysis for your connected accounts.</p>`;
+}
+function renderEfficiencyTable(){
+  const sprout = state.integrations.sprout;
+  const banner = document.getElementById('sproutStatusBanner');
+  const tbody = document.getElementById('efficiencyTable');
+
+  if(!sprout.connected){
+    banner.innerHTML = `<div class="callout callout-warn" style="margin-bottom:14px;">🔌 Sprout Social isn't connected yet. <button class="btn btn-sm btn-ghost" id="jumpToSproutBtn" style="margin-left:6px;">Connect it in Integrations</button></div>`;
+    tbody.innerHTML = `<tr><td colspan="5" class="empty">No data yet — connect Sprout Social to pull real Impressions, Engagements, Engagement Rate, and Net Audience Growth.</td></tr>`;
+    document.getElementById('jumpToSproutBtn').addEventListener('click', ()=> document.querySelector('.nav-item[data-view="integrations"]').click());
+    return;
+  }
+  if(!sprout.metrics){
+    banner.innerHTML = `<div class="callout callout-info" style="margin-bottom:14px;">⏳ Connected, but no sync yet. Click "Sync from Sprout" above.</div>`;
+    tbody.innerHTML = `<tr><td colspan="5" class="empty">Waiting on first sync from Sprout Social.</td></tr>`;
+    return;
+  }
+  banner.innerHTML = `<div class="callout callout-ok" style="margin-bottom:14px;">✅ Last synced from Sprout Social ${new Date(sprout.lastSync).toLocaleString()}.</div>`;
+  tbody.innerHTML = Object.entries(sprout.metrics).map(([platform,m])=>`<tr>
+      <td><strong>${platform}</strong></td>
+      <td class="mono">${fmt(m.impressions)}</td>
+      <td class="mono">${fmt(m.engagements)}</td>
+      <td class="mono">${m.engagementRate}%</td>
+      <td class="mono">${m.netAudienceGrowth >= 0 ? '+' : ''}${fmt(m.netAudienceGrowth)}</td>
+    </tr>`).join('');
+}
+document.getElementById('syncSproutBtn').addEventListener('click', ()=> syncPlatform('sprout'));
+
+let charts = {};
+function renderCharts(){
+  const isLight = state.theme === 'light';
+  const gridColor = isLight ? 'rgba(0,0,0,.06)' : 'rgba(255,255,255,.06)';
+  const textColor = isLight ? '#5a5548' : '#a8adba';
+  Chart.defaults.color = textColor;
+  Chart.defaults.font.family = "'Inter', sans-serif";
+
+  ['reachChart','audienceChart','podcastChart','engagementChart'].forEach(id=>{
+    if(charts[id]) { charts[id].destroy(); delete charts[id]; }
+  });
+
+  const reachEl = document.getElementById('reachChart');
+  if(reachEl && reachEl.offsetParent !== null){
+    charts.reachChart = new Chart(reachEl, {
+      type:'line',
+      data:{ labels: state.reachTrendMonths, datasets:[{ label:'Total Reach', data: state.reachTrend, borderColor:'#9c2b3c', backgroundColor:'rgba(156,43,60,.12)', fill:true, tension:.35, pointBackgroundColor:'#d4a256', pointRadius:4 }]},
+      options:{ plugins:{legend:{display:false}}, scales:{ x:{grid:{color:gridColor}}, y:{grid:{color:gridColor}} } }
+    });
+  }
+  const audEl = document.getElementById('audienceChart');
+  if(audEl && audEl.offsetParent !== null){
+    charts.audienceChart = new Chart(audEl, {
+      type:'doughnut',
+      data:{ labels: Object.keys(state.metrics), datasets:[{ data: Object.values(state.metrics).map(m=>m.followers), backgroundColor:['#9c2b3c','#d4a256','#3b82c4','#2f9e6e','#8b5fbf'], borderWidth:0 }]},
+      options:{ plugins:{legend:{position:'bottom', labels:{boxWidth:10,padding:14}}} }
+    });
+  }
+  const podEl = document.getElementById('podcastChart');
+  if(podEl && podEl.offsetParent !== null){
+    charts.podcastChart = new Chart(podEl, {
+      type:'bar',
+      data:{ labels:['Apple','Spotify','YouTube','Audible','Google'], datasets:[{ data:[42,30,18,6,4], backgroundColor:'#d4a256', borderRadius:5 }]},
+      options:{ plugins:{legend:{display:false}}, scales:{ x:{grid:{display:false}}, y:{grid:{color:gridColor}} } }
+    });
+  }
+  const engEl = document.getElementById('engagementChart');
+  if(engEl && engEl.offsetParent !== null){
+    charts.engagementChart = new Chart(engEl, {
+      type:'bar',
+      data:{ labels: Object.keys(state.metrics), datasets:[{ data: Object.values(state.metrics).map(m=>m.engagement), backgroundColor:'#9c2b3c', borderRadius:5 }]},
+      options:{ plugins:{legend:{display:false}}, scales:{ x:{grid:{display:false}}, y:{grid:{color:gridColor}} } }
+    });
+  }
+}
+
+/* ==================================================================
+   CONTENT PLANNER
+================================================================== */
+let plannerFilter = 'all';
+let plannerMode = 'table';
+function renderPlanner(){
+  const rows = state.content
+    .filter(c => plannerFilter==='all' || c.platform===plannerFilter)
+    .sort((a,b)=> new Date(b.date) - new Date(a.date));
+  const tbody = document.getElementById('plannerTable');
+  document.getElementById('plannerEmpty').style.display = rows.length ? 'none' : 'block';
+  tbody.innerHTML = rows.map(c=>{
+    const app = c.approval;
+    const noteCount = (c.notes||[]).length;
+    return `<tr>
+      <td><span class="badge badge-platform">${c.platform}</span></td>
+      <td><span class="badge ${typeTagClass(c.type)}">${c.type}</span></td>
+      <td style="max-width:260px;">${escapeHtml(c.caption)} ${c.source==='agent'?'<span class="hint">✨ AI-generated</span>':''}${c.thumbnail?`<div class="hint">🖼️ ${escapeHtml(c.thumbnail)}</div>`:''}</td>
+      <td style="max-width:120px; overflow:hidden; text-overflow:ellipsis;">${c.link ? `<a href="${escapeHtml(c.link)}" target="_blank" rel="noopener" class="hint">🔗 link</a>` : '<span class="hint">—</span>'}</td>
+      <td style="max-width:160px;" class="hint">${escapeHtml(c.hashtags||'')||'—'}</td>
+      <td class="mono">${c.date||'—'}</td>
+      <td class="mono">${c.time||'—'}</td>
+      <td><span class="badge ${statusBadgeClass(c.status)}"><span class="badge-dot"></span>${c.status}</span></td>
+      <td>${c.status==='Posted' ? `<input class="reach-input mono" data-reach="${c.id}" type="number" min="0" value="${c.reach??''}" placeholder="—">` : '<span class="hint">—</span>'}</td>
+      <td>
+        <div class="approve-btns">
+          <button class="pill-btn yes ${app.decision==='approved'?'active':''}" data-id="${c.id}" data-decision="approved">✓ Approve</button>
+          <button class="pill-btn no ${app.decision==='rejected'?'active':''}" data-id="${c.id}" data-decision="rejected">✕ Reject</button>
+        </div>
+        ${app.decision!=='pending' ? `<input class="approved-by-input" data-id="${c.id}" placeholder="QA by" value="${escapeHtml(app.by)}">` : ''}
+      </td>
+      <td><button class="btn btn-sm btn-ghost notes-btn" data-notes="${c.id}">💬${noteCount?` <span class="notes-badge">${noteCount}</span>`:''}</button></td>
+      <td><button class="btn btn-sm btn-ghost" data-del="${c.id}">Delete</button></td>
+    </tr>`;
+  }).join('');
+
+  tbody.querySelectorAll('.pill-btn').forEach(btn=>{
+    btn.addEventListener('click', ()=>{
+      const item = state.content.find(c=>c.id===btn.dataset.id);
+      const dec = btn.dataset.decision;
+      const prevDecision = item.approval.decision;
+      item.approval.decision = prevDecision === dec ? 'pending' : dec;
+      if(item.approval.decision === 'approved' && item.status === 'Drafted') item.status = 'Scheduled';
+      if(item.approval.decision === 'pending') item.approval.by = '';
+      logAudit(item.approval.by || 'You', item.approval.decision === 'pending' ? 'Reverted decision' : (item.approval.decision === 'approved' ? 'Approved' : 'Rejected'), item.platform+': '+item.caption.slice(0,60), 'Content Planner');
+      saveState(); renderPlanner(); renderApprovals(); renderOverview(); renderAuditLog();
+    });
+  });
+  tbody.querySelectorAll('.approved-by-input').forEach(inp=>{
+    inp.addEventListener('input', ()=>{
+      const item = state.content.find(c=>c.id===inp.dataset.id);
+      item.approval.by = inp.value; saveState();
+    });
+  });
+  tbody.querySelectorAll('.reach-input').forEach(inp=>{
+    inp.addEventListener('change', ()=>{
+      const item = state.content.find(c=>c.id===inp.dataset.reach);
+      const val = inp.value === '' ? null : Number(inp.value);
+      item.reach = val;
+      logAudit('You', 'Logged actual reach', item.platform+': '+item.caption.slice(0,60), val===null?'cleared':String(val));
+      saveState(); renderTopPerformers(); renderAuditLog();
+      toast('Actual reach saved');
+    });
+  });
+  tbody.querySelectorAll('[data-notes]').forEach(btn=>{
+    btn.addEventListener('click', ()=> openNotesModal(btn.dataset.notes));
+  });
+  tbody.querySelectorAll('[data-del]').forEach(btn=>{
+    btn.addEventListener('click', ()=>{
+      const item = state.content.find(c=>c.id===btn.dataset.del);
+      logAudit('You', 'Deleted', item.platform+': '+item.caption.slice(0,60), '');
+      state.content = state.content.filter(c=>c.id!==btn.dataset.del);
+      saveState(); renderPlanner(); renderApprovals(); renderOverview(); renderAuditLog();
+    });
+  });
+  renderTopPerformers();
+  if(plannerMode === 'calendar') renderCalendar();
+}
+function renderTopPerformers(){
+  const published = state.content.filter(c=>c.status==='Posted' && typeof c.reach === 'number');
+  const top = [...published].sort((a,b)=>b.reach-a.reach).slice(0,5);
+  document.getElementById('topPerformersEmpty').style.display = top.length ? 'none' : 'block';
+  document.getElementById('topPerformersTable').innerHTML = top.map((c,i)=>`<tr>
+    <td><span class="badge badge-platform">${c.platform}</span></td>
+    <td style="max-width:380px;">${i===0?'🏆 ':''}${escapeHtml(c.caption)}</td>
+    <td class="mono" style="font-weight:700; color:var(--gold);">${fmt(c.reach)}</td>
+  </tr>`).join('');
+}
+document.getElementById('plannerViewTable').addEventListener('click', ()=>{
+  plannerMode = 'table';
+  document.getElementById('plannerViewTable').classList.add('active');
+  document.getElementById('plannerViewCalendar').classList.remove('active');
+  document.getElementById('plannerTableView').style.display = 'block';
+  document.getElementById('plannerCalendarView').style.display = 'none';
+});
+document.getElementById('plannerViewCalendar').addEventListener('click', ()=>{
+  plannerMode = 'calendar';
+  document.getElementById('plannerViewCalendar').classList.add('active');
+  document.getElementById('plannerViewTable').classList.remove('active');
+  document.getElementById('plannerTableView').style.display = 'none';
+  document.getElementById('plannerCalendarView').style.display = 'block';
+  renderCalendar();
+});
+document.getElementById('calPrevBtn').addEventListener('click', ()=>{
+  const c = new Date(state.calendarCursor || Date.now());
+  c.setMonth(c.getMonth()-1);
+  state.calendarCursor = c.toISOString();
+  saveState(); renderCalendar();
+});
+document.getElementById('calNextBtn').addEventListener('click', ()=>{
+  const c = new Date(state.calendarCursor || Date.now());
+  c.setMonth(c.getMonth()+1);
+  state.calendarCursor = c.toISOString();
+  saveState(); renderCalendar();
+});
+function renderCalendar(){
+  if(!state.calendarCursor){
+    const dated = state.content.map(c=>c.date).filter(Boolean).sort();
+    state.calendarCursor = dated.length ? new Date(dated[0]).toISOString() : new Date().toISOString();
+    saveState();
+  }
+  const cursor = new Date(state.calendarCursor);
+  const year = cursor.getFullYear(), month = cursor.getMonth();
+  document.getElementById('calLabel').textContent = cursor.toLocaleString('default',{month:'long', year:'numeric'});
+  const firstDay = new Date(year, month, 1);
+  const startOffset = firstDay.getDay();
+  const daysInMonth = new Date(year, month+1, 0).getDate();
+  const byDate = {};
+  state.content.forEach(c=>{ if(c.date){ (byDate[c.date] = byDate[c.date]||[]).push(c); } });
+
+  let html = ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'].map(d=>`<div class="cal-daylabel">${d}</div>`).join('');
+  for(let i=0;i<startOffset;i++){
+    const prevDate = new Date(year, month, i - startOffset + 1);
+    html += `<div class="cal-cell other-month"><div class="cal-daynum">${prevDate.getDate()}</div></div>`;
+  }
+  for(let d=1; d<=daysInMonth; d++){
+    const dateStr = `${year}-${String(month+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`;
+    const items = byDate[dateStr] || [];
+    html += `<div class="cal-cell">
+      <div class="cal-daynum">${d}</div>
+      ${items.slice(0,3).map(c=>`<div class="cal-item type-${c.type}" title="${escapeHtml(c.caption)}">${c.platform}: ${escapeHtml(c.caption.slice(0,26))}</div>`).join('')}
+      ${items.length>3 ? `<div class="hint">+${items.length-3} more</div>` : ''}
+    </div>`;
+  }
+  const totalCells = startOffset + daysInMonth;
+  const trailing = (7 - (totalCells % 7)) % 7;
+  for(let i=1;i<=trailing;i++){
+    html += `<div class="cal-cell other-month"><div class="cal-daynum">${i}</div></div>`;
+  }
+  document.getElementById('calendarGrid').innerHTML = html;
+}
+
+/* NOTES */
+function openNotesModal(contentId){
+  document.getElementById('notesContentId').value = contentId;
+  renderNotesThread();
+  openModal('notesModal');
+}
+function renderNotesThread(){
+  const id = document.getElementById('notesContentId').value;
+  const item = state.content.find(c=>c.id===id);
+  const notes = item.notes || [];
+  document.getElementById('notesThread').innerHTML = notes.length
+    ? notes.map(n=>`<div class="note-item"><span class="note-author">${escapeHtml(n.author)}</span><span class="note-time">${new Date(n.ts).toLocaleString()}</span><div>${escapeHtml(n.text)}</div></div>`).join('')
+    : '<p class="hint">No notes yet on this item.</p>';
+}
+document.getElementById('addNoteBtn').addEventListener('click', ()=>{
+  const id = document.getElementById('notesContentId').value;
+  const item = state.content.find(c=>c.id===id);
+  const author = document.getElementById('noteAuthor').value.trim() || 'Unnamed';
+  const text = document.getElementById('noteText').value.trim();
+  if(!text){ toast('Write a note first', true); return; }
+  item.notes = item.notes || [];
+  item.notes.push({ id: uid(), author, text, ts: Date.now() });
+  logAudit(author, 'Added note', item.platform+': '+item.caption.slice(0,60), text.slice(0,80));
+  document.getElementById('noteText').value = '';
+  saveState(); renderNotesThread(); renderPlanner(); renderAuditLog();
+  toast('Note added');
+});
+function escapeHtml(s){
+  return (s||'').replace(/[&<>"']/g, c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+}
+document.querySelectorAll('#platformFilter .chip').forEach(chip=>{
+  chip.addEventListener('click', ()=>{
+    document.querySelectorAll('#platformFilter .chip').forEach(c=>c.classList.remove('active'));
+    chip.classList.add('active');
+    plannerFilter = chip.dataset.platform;
+    renderPlanner();
+  });
+});
+document.getElementById('addContentBtn').addEventListener('click', ()=>{
+  const caption = document.getElementById('pfCaption').value.trim();
+  if(!caption){ toast('Add a caption or title first', true); return; }
+  const status = document.getElementById('pfStatus').value;
+  state.content.push({
+    id: uid(),
+    platform: document.getElementById('pfPlatform').value,
+    type: document.getElementById('pfType').value,
+    caption,
+    link: document.getElementById('pfLink').value.trim(),
+    thumbnail: document.getElementById('pfThumbnail').value.trim(),
+    hashtags: document.getElementById('pfHashtags').value.trim(),
+    date: document.getElementById('pfDate').value,
+    time: document.getElementById('pfTime').value,
+    status,
+    reach: null,
+    approval: { decision:'pending', by:'' },
+    source: 'manual',
+    notes: []
+  });
+  logAudit('You', 'Created '+status.toLowerCase(), document.getElementById('pfPlatform').value+': '+caption.slice(0,60), '');
+  ['pfCaption','pfLink','pfThumbnail','pfHashtags'].forEach(id=> document.getElementById(id).value='');
+  saveState(); renderPlanner(); renderApprovals(); renderOverview(); renderAuditLog();
+  toast('Added to planner as '+status);
+});
+
+/* CSV export — proper RFC4180 escaping */
+function toCsvValue(v){
+  const s = (v===null||v===undefined) ? '' : String(v);
+  if(/[",\n]/.test(s)) return '"'+s.replace(/"/g,'""')+'"';
+  return s;
+}
+document.getElementById('exportCsvBtn').addEventListener('click', ()=>{
+  const headers = ['Platform','Caption','Link','Thumbnail/Cover Image','Hashtags','Status','Post Time','Post Date','QA APPROVAL','Reach # (Post Data Views)'];
+  const lines = [headers.join(',')];
+  state.content.forEach(c=>{
+    lines.push([c.platform,c.caption,c.link||'',c.thumbnail||'',c.hashtags||'',c.status,c.time,c.date,c.approval.by||'',c.reach??''].map(toCsvValue).join(','));
+  });
+  const blob = new Blob(['\ufeff'+lines.join('\r\n')], { type:'text/csv;charset=utf-8;' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url; a.download = `oneunited-content-planner-${new Date().toISOString().slice(0,10)}.csv`;
+  document.body.appendChild(a); a.click(); a.remove();
+  URL.revokeObjectURL(url);
+  toast('CSV exported: '+state.content.length+' rows');
+});
+
+/* CSV import — simple RFC4180-aware parser */
+function parseCsv(text){
+  const rows = []; let row = []; let field = ''; let inQuotes = false;
+  for(let i=0;i<text.length;i++){
+    const ch = text[i];
+    if(inQuotes){
+      if(ch === '"'){
+        if(text[i+1] === '"'){ field += '"'; i++; } else { inQuotes = false; }
+      } else field += ch;
+    } else {
+      if(ch === '"') inQuotes = true;
+      else if(ch === ','){ row.push(field); field=''; }
+      else if(ch === '\n'){ row.push(field); rows.push(row); row=[]; field=''; }
+      else if(ch === '\r'){ /* skip */ }
+      else field += ch;
+    }
+  }
+  if(field.length || row.length){ row.push(field); rows.push(row); }
+  return rows.filter(r => r.some(c=>c.trim()!==''));
+}
+document.getElementById('importCsvBtn').addEventListener('click', ()=> document.getElementById('csvFileInput').click());
+document.getElementById('csvFileInput').addEventListener('change', (e)=>{
+  const file = e.target.files[0]; if(!file) return;
+  const reader = new FileReader();
+  reader.onload = ()=>{
+    try{
+      const rows = parseCsv(reader.result);
+      const norm = h => h.toLowerCase().replace(/[^a-z0-9]/g,'');
+      const header = rows[0].map(norm);
+      const findIdx = (...candidates) => {
+        for(const c of candidates){ const i = header.indexOf(norm(c)); if(i>-1) return i; }
+        return -1;
+      };
+      const col = {
+        platform: findIdx('Platform'),
+        caption: findIdx('Caption','Title'),
+        link: findIdx('Link'),
+        thumbnail: findIdx('Thumbnail/Cover Image','Thumbnail','Cover Image'),
+        hashtags: findIdx('Hashtags','Hashtags[1]'),
+        status: findIdx('Status'),
+        time: findIdx('Post Time','Time'),
+        date: findIdx('Post Date','Date'),
+        qaby: findIdx('QA APPROVAL','QA Approval','Approved By','QA'),
+        reach: findIdx('Reach # (Post Data Views)','Reach','Reach#','Reach#(PostDataViews)')
+      };
+      const get = (r, key) => col[key] > -1 ? (r[col[key]]||'').trim() : '';
+      const normalizeStatus = s => {
+        const t = (s||'').trim().toLowerCase();
+        if(t === 'posted') return 'Posted';
+        if(t === 'scheduled') return 'Scheduled';
+        if(t === 'drafted' || t === 'draft') return 'Drafted';
+        if(t === 'in progress' || t === 'inprogress') return 'In Progress';
+        if(t === 'canceled' || t === 'cancelled') return 'Canceled';
+        if(t === 'not started' || t === '') return 'Not Started';
+        return 'Not Started';
+      };
+      const parseReach = s => {
+        if(!s) return null;
+        let t = s.trim().toLowerCase();
+        if(/n\/a|\?\?\?|error|^-$/.test(t)) return null;
+        t = t.replace(/views?/g,'').replace(/,/g,'').trim();
+        let mult = 1;
+        if(t.endsWith('k')){ mult = 1000; t = t.slice(0,-1); }
+        else if(t.endsWith('m')){ mult = 1000000; t = t.slice(0,-1); }
+        const num = parseFloat(t);
+        return isNaN(num) ? null : Math.round(num*mult);
+      };
+      const inferType = caption => {
+        const c = (caption||'').toLowerCase();
+        if(c.includes('blog')) return 'Blog';
+        if(c.includes('press release') || c.includes('press')) return 'Press';
+        if(c.includes('flyer') || c.includes('holiday') || c.includes('closure')) return 'Social';
+        return 'Podcast';
+      };
+      let added = 0;
+      rows.slice(1).forEach(r=>{
+        const caption = get(r,'caption');
+        const platform = get(r,'platform');
+        if(!caption && !platform) return;
+        state.content.push({
+          id: uid(),
+          platform: platform || 'Instagram',
+          type: inferType(caption),
+          caption: caption || '(no caption)',
+          link: get(r,'link'),
+          thumbnail: get(r,'thumbnail'),
+          hashtags: get(r,'hashtags'),
+          date: get(r,'date'),
+          time: get(r,'time'),
+          status: normalizeStatus(get(r,'status')),
+          reach: parseReach(get(r,'reach')),
+          approval: { decision: get(r,'qaby') ? 'approved' : 'pending', by: get(r,'qaby') },
+          source: 'import',
+          notes: []
+        });
+        added++;
+      });
+      logAudit('You', 'Imported CSV', `${added} rows`, file.name);
+      saveState(); renderPlanner(); renderApprovals(); renderOverview(); renderAuditLog();
+      toast(`Imported ${added} rows from CSV`);
+    }catch(err){
+      console.error(err); toast('Could not parse that CSV — check the column headers', true);
+    }
+  };
+  reader.readAsText(file);
+  e.target.value = '';
+});
+
+/* ==================================================================
+   APPROVALS TAB
+================================================================== */
+function renderApprovals(){
+  const pending = state.content.filter(c=>c.approval.decision==='pending');
+  const approved = state.content.filter(c=>c.approval.decision==='approved');
+  const rejected = state.content.filter(c=>c.approval.decision==='rejected');
+  document.getElementById('approvalMetrics').innerHTML =
+    renderMetricCard('Pending Review', pending.length, null, '⏳') +
+    renderMetricCard('Approved', approved.length, null, '✅') +
+    renderMetricCard('Rejected', rejected.length, null, '⛔') +
+    renderMetricCard('Agent-Generated Awaiting Review', state.content.filter(c=>c.source==='agent' && c.approval.decision==='pending').length, null, '✨');
+
+  const tbody = document.getElementById('approvalsTable');
+  document.getElementById('approvalsEmpty').style.display = pending.length ? 'none' : 'block';
+  tbody.innerHTML = pending.map(c=>`<tr>
+    <td><span class="badge badge-platform">${c.platform}</span></td>
+    <td style="max-width:360px;">${escapeHtml(c.caption)}</td>
+    <td>${c.source==='agent' ? '✨ AI Agent' : c.source==='import' ? '📥 Import' : '✍️ Manual'}</td>
+    <td class="mono">${c.date||'—'}</td>
+    <td>
+      <div class="approve-btns">
+        <button class="pill-btn yes" data-id="${c.id}" data-decision="approved">✓ Approve</button>
+        <button class="pill-btn no" data-id="${c.id}" data-decision="rejected">✕ Reject</button>
+      </div>
+    </td>
+    <td><input class="approved-by-input" data-approver="${c.id}" placeholder="Your name"></td>
+  </tr>`).join('');
+
+  tbody.querySelectorAll('.pill-btn').forEach(btn=>{
+    btn.addEventListener('click', ()=>{
+      const item = state.content.find(c=>c.id===btn.dataset.id);
+      const nameInput = tbody.querySelector(`[data-approver="${btn.dataset.id}"]`);
+      item.approval.decision = btn.dataset.decision;
+      item.approval.by = (nameInput && nameInput.value.trim()) || 'Unnamed reviewer';
+      if(item.approval.decision === 'approved' && item.status === 'Drafted') item.status = 'Scheduled';
+      logAudit(item.approval.by, item.approval.decision === 'approved' ? 'Approved' : 'Rejected', item.platform+': '+item.caption.slice(0,60), 'Approvals queue');
+      saveState(); renderApprovals(); renderPlanner(); renderOverview(); renderAuditLog();
+      toast(`Marked as ${item.approval.decision}`);
+    });
+  });
+}
+
+/* ==================================================================
+   AI AGENTS
+================================================================== */
+function renderAgents(){
+  document.getElementById('apiKeyStatus').textContent = state.anthropicKey ? '🟢 Key set' : '🔴 No key set yet';
+  document.getElementById('agentsGrid').innerHTML = state.agents.map(a=>`
+    <div class="agent-card">
+      <div class="agent-head">
+        <div class="agent-avatar">${a.name.split(' ').map(w=>w[0]).slice(0,2).join('')}</div>
+        <div style="flex:1;">
+          <div style="font-weight:700; font-size:14.5px;">${escapeHtml(a.name)}</div>
+          <div class="hint">Default platform: ${a.platform}</div>
+        </div>
+      </div>
+      <div class="agent-instructions">${escapeHtml(a.instructions)}</div>
+      <div class="divider"></div>
+      <div style="display:flex; gap:8px;">
+        <button class="btn btn-gold btn-sm" data-generate="${a.id}">✨ Generate content</button>
+        <button class="btn btn-ghost btn-sm" data-editagent="${a.id}">Edit</button>
+        <button class="btn btn-ghost btn-sm" data-delagent="${a.id}">Delete</button>
+      </div>
+    </div>`).join('') + `
+    <div class="agent-card" style="display:flex; align-items:center; justify-content:center; border-style:dashed; cursor:pointer;" id="agentAddTile">
+      <div style="text-align:center; color:var(--text-faint);">+ Add another agent</div>
+    </div>`;
+
+  document.querySelectorAll('[data-generate]').forEach(btn=> btn.addEventListener('click', ()=> openGenerateModal(btn.dataset.generate)));
+  document.querySelectorAll('[data-editagent]').forEach(btn=> btn.addEventListener('click', ()=> openAgentModal(btn.dataset.editagent)));
+  document.querySelectorAll('[data-delagent]').forEach(btn=> btn.addEventListener('click', ()=>{
+    state.agents = state.agents.filter(a=>a.id!==btn.dataset.delagent);
+    saveState(); renderAgents(); toast('Agent deleted');
+  }));
+  const addTile = document.getElementById('agentAddTile');
+  if(addTile) addTile.addEventListener('click', ()=> openAgentModal(null));
+}
+function openModal(id){ document.getElementById(id).classList.add('open'); }
+function closeModal(id){ document.getElementById(id).classList.remove('open'); }
+document.querySelectorAll('[data-close]').forEach(el=> el.addEventListener('click', ()=> closeModal(el.dataset.close)));
+document.querySelectorAll('.modal-overlay').forEach(ov=> ov.addEventListener('click', (e)=>{ if(e.target===ov) ov.classList.remove('open'); }));
+
+document.getElementById('addAgentBtn').addEventListener('click', ()=> openAgentModal(null));
+function openAgentModal(id){
+  const a = id ? state.agents.find(x=>x.id===id) : { id:'', name:'', instructions:'', platform:'Instagram' };
+  document.getElementById('agentModalTitle').textContent = id ? 'Edit Agent' : 'New Agent';
+  document.getElementById('agentId').value = a.id;
+  document.getElementById('agentName').value = a.name;
+  document.getElementById('agentInstructions').value = a.instructions;
+  document.getElementById('agentPlatform').value = a.platform;
+  openModal('agentModal');
+}
+document.getElementById('saveAgentBtn').addEventListener('click', ()=>{
+  const id = document.getElementById('agentId').value;
+  const name = document.getElementById('agentName').value.trim();
+  const instructions = document.getElementById('agentInstructions').value.trim();
+  const platform = document.getElementById('agentPlatform').value;
+  if(!name || !instructions){ toast('Give the agent a name and instructions', true); return; }
+  if(id){
+    const a = state.agents.find(x=>x.id===id);
+    Object.assign(a, { name, instructions, platform });
+  } else {
+    state.agents.push({ id: uid(), name, instructions, platform });
+  }
+  saveState(); renderAgents(); closeModal('agentModal');
+  toast('Agent saved');
+});
+
+document.getElementById('setApiKeyBtn').addEventListener('click', ()=>{
+  document.getElementById('apiKeyInput').value = state.anthropicKey || '';
+  openModal('apiKeyModal');
+});
+document.getElementById('saveApiKeyBtn').addEventListener('click', ()=>{
+  state.anthropicKey = document.getElementById('apiKeyInput').value.trim();
+  saveState(); closeModal('apiKeyModal'); renderAgents();
+  toast('API key saved to this browser');
+});
+
+function openGenerateModal(agentId){
+  const a = state.agents.find(x=>x.id===agentId);
+  document.getElementById('genAgentId').value = agentId;
+  document.getElementById('genAgentName').textContent = a.name;
+  document.getElementById('genPlatform').value = a.platform;
+  document.getElementById('genTopic').value = '';
+  document.getElementById('genResult').value = '';
+  document.getElementById('genResultWrap').style.display = 'none';
+  document.getElementById('genAddBtn').style.display = 'none';
+  document.getElementById('genStatus').textContent = '';
+  openModal('generateModal');
+}
+document.getElementById('genRunBtn').addEventListener('click', async ()=>{
+  const agentId = document.getElementById('genAgentId').value;
+  const agent = state.agents.find(a=>a.id===agentId);
+  const topic = document.getElementById('genTopic').value.trim();
+  const platform = document.getElementById('genPlatform').value;
+  if(!topic){ toast('Add a topic or brief first', true); return; }
+  if(!state.anthropicKey){ toast('Set your Anthropic API key first', true); document.getElementById('setApiKeyBtn').click(); return; }
+  const status = document.getElementById('genStatus');
+  status.textContent = 'Generating…';
+  document.getElementById('genRunBtn').disabled = true;
+  try{
+    const res = await fetch('https://api.anthropic.com/v1/messages', {
+      method:'POST',
+      headers:{
+        'Content-Type':'application/json',
+        'x-api-key': state.anthropicKey,
+        'anthropic-version':'2023-06-01',
+        'anthropic-dangerous-direct-browser-access':'true'
+      },
+      body: JSON.stringify({
+        model:'claude-sonnet-4-6',
+        max_tokens:400,
+        system: agent.instructions + ` Write specifically for ${platform}. Return only the post copy — no preamble, no markdown, no explanation.`,
+        messages:[{ role:'user', content: topic }]
+      })
+    });
+    if(!res.ok){
+      const errBody = await res.text();
+      throw new Error(`API returned ${res.status}: ${errBody.slice(0,200)}`);
+    }
+    const data = await res.json();
+    const text = (data.content||[]).filter(b=>b.type==='text').map(b=>b.text).join('\n').trim();
+    document.getElementById('genResult').value = text || '(no text returned)';
+    document.getElementById('genResultWrap').style.display = 'block';
+    document.getElementById('genAddBtn').style.display = 'inline-flex';
+    status.textContent = 'Draft ready — review before adding.';
+  }catch(err){
+    console.error(err);
+    status.textContent = '';
+    toast('Generation failed: '+err.message, true);
+  }finally{
+    document.getElementById('genRunBtn').disabled = false;
+  }
+});
+document.getElementById('genAddBtn').addEventListener('click', ()=>{
+  const caption = document.getElementById('genResult').value.trim();
+  const platform = document.getElementById('genPlatform').value;
+  const agentId = document.getElementById('genAgentId').value;
+  const agent = state.agents.find(a=>a.id===agentId);
+  if(!caption) return;
+  state.content.push({
+    id: uid(), platform, type:'Social', caption,
+    link:'', thumbnail:'', hashtags:'',
+    date:'', time:'', status:'Drafted', reach:null,
+    approval:{ decision:'pending', by:'' }, source:'agent', notes:[]
+  });
+  logAudit('AI Agent: '+(agent?agent.name:'Unknown'), 'Generated draft', platform+': '+caption.slice(0,60), '');
+  saveState(); renderPlanner(); renderApprovals(); renderOverview(); renderAuditLog();
+  closeModal('generateModal');
+  toast('Added to planner — pending approval');
+});
+
+/* ==================================================================
+   INTEGRATIONS
+================================================================== */
+const platformLogos = {
+  meta:'#1877F2', instagram:'linear-gradient(150deg,#f58529,#dd2a7b,#8134af)', tiktok:'#000000',
+  linkedin:'#0A66C2', youtube:'#FF0000', ga4:'#F9AB00', sprout:'#000E29'
+};
+const platformInitial = { meta:'f', instagram:'ig', tiktok:'tt', linkedin:'in', youtube:'▶', ga4:'GA', sprout:'S' };
+
+function renderIntegrations(){
+  const proxyInput = document.getElementById('proxyBaseUrlInput');
+  if(proxyInput && !proxyInput.matches(':focus')) proxyInput.value = state.proxyBaseUrl || '';
+  document.getElementById('proxyUrlStatus').textContent = state.proxyBaseUrl ? '🟢 Saved: '+state.proxyBaseUrl : 'No proxy URL saved yet — needed for Meta, Instagram, TikTok, LinkedIn, GA4, and Sprout.';
+  document.getElementById('integrationsGrid').innerHTML = Object.entries(state.integrations).map(([key,cfg])=>{
+    const dotClass = cfg.connected ? 'dot-connected' : 'dot-off';
+    const capBadge = cfg.capability === 'live' ? '<span class="cap-tag cap-live">Browser OK</span>' : '<span class="cap-tag cap-proxy">Needs proxy</span>';
+    return `<div class="card integration-card">
+      <div class="integration-top">
+        <div class="integration-name">
+          <div class="integration-logo" style="background:${platformLogos[key]};">${platformInitial[key]}</div>
+          ${cfg.name}
+        </div>
+        ${capBadge}
+      </div>
+      <div style="font-size:12.5px; color:var(--text-dim);">
+        <span class="dot-status ${dotClass}"></span>${cfg.connected ? 'Connected' : 'Not connected'}
+        ${cfg.lastSync ? ` · last synced ${new Date(cfg.lastSync).toLocaleString()}` : ''}
+      </div>
+      <div style="display:flex; gap:8px;">
+        <button class="btn btn-sm btn-ghost" data-connect="${key}">${cfg.connected ? 'Edit connection' : 'Connect'}</button>
+        <button class="btn btn-sm btn-ghost" data-sync="${key}" ${cfg.connected ? '' : 'disabled'}>Sync now</button>
+      </div>
+    </div>`;
+  }).join('');
+
+  document.querySelectorAll('[data-connect]').forEach(btn=> btn.addEventListener('click', ()=> openConnectModal(btn.dataset.connect)));
+  document.querySelectorAll('[data-sync]').forEach(btn=> btn.addEventListener('click', ()=> syncPlatform(btn.dataset.sync)));
+}
+
+function openConnectModal(key){
+  const cfg = state.integrations[key];
+  document.getElementById('connectPlatformKey').value = key;
+  document.getElementById('connectModalTitle').textContent = 'Connect '+cfg.name;
+  let fields = '';
+  if(cfg.capability === 'live'){
+    fields = `<div class="field"><label>API key</label>
+      <input id="connectToken" type="password" value="${escapeHtml(cfg.token)}" placeholder="Paste your key"></div>`;
+    if(key==='youtube') fields += `<div class="field"><label>Channel ID</label><input id="connectExtra" value="${escapeHtml(cfg.channelId||'')}" placeholder="UC..."></div>`;
+  } else {
+    fields = `<p class="hint">This platform's token lives in your proxy server's secrets (set up in the Worker's environment variables), not here. Make sure you've saved a <strong>Proxy Server URL</strong> above and added the matching secret in your Worker, then click Connect below.</p>`;
+  }
+  document.getElementById('connectFields').innerHTML = fields;
+  const hints = {
+    meta: 'Routed through your proxy — set META_TOKEN as a secret in your Worker.',
+    instagram: 'Routed through your proxy — set INSTAGRAM_TOKEN as a secret in your Worker.',
+    tiktok: 'Routed through your proxy — set TIKTOK_TOKEN as a secret in your Worker.',
+    linkedin: 'Routed through your proxy — set LINKEDIN_TOKEN as a secret in your Worker.',
+    youtube: 'YouTube Data API v3 supports direct browser calls with a restricted API key — this one syncs live from right here, no proxy needed.',
+    ga4: 'Routed through your proxy — set GA4_TOKEN and GA4_PROPERTY_ID as secrets in your Worker.',
+    sprout: 'Routed through your proxy — set SPROUT_TOKEN as a secret in your Worker.'
+  };
+  document.getElementById('connectHint').textContent = hints[key] || '';
+  openModal('connectModal');
+}
+document.getElementById('saveConnectBtn').addEventListener('click', ()=>{
+  const key = document.getElementById('connectPlatformKey').value;
+  const cfg = state.integrations[key];
+  if(cfg.capability === 'live'){
+    cfg.token = document.getElementById('connectToken').value.trim();
+    const extraEl = document.getElementById('connectExtra');
+    if(extraEl && key==='youtube') cfg.channelId = extraEl.value.trim();
+    cfg.connected = !!cfg.token;
+  } else {
+    if(!state.proxyBaseUrl){ toast('Save a Proxy Server URL above first', true); return; }
+    cfg.connected = true;
+  }
+  saveState(); renderIntegrations(); closeModal('connectModal');
+  if(cfg.connected){ toast(cfg.name+' connected'); syncPlatform(key); }
+});
+document.getElementById('saveProxyUrlBtn').addEventListener('click', ()=>{
+  state.proxyBaseUrl = document.getElementById('proxyBaseUrlInput').value.trim().replace(/\/$/,'');
+  saveState();
+  document.getElementById('proxyUrlStatus').textContent = state.proxyBaseUrl ? '🟢 Saved: '+state.proxyBaseUrl : '';
+  toast('Proxy URL saved');
+});
+
+async function syncPlatform(key){
+  const cfg = state.integrations[key];
+  if(!cfg.connected){ toast('Connect this platform first', true); return; }
+
+  // YouTube: Browser OK, calls Google directly with the API key
+  if(key === 'youtube'){
+    if(!cfg.token || !cfg.channelId){ toast('Add an API key and channel ID first', true); return; }
+    try{
+      toast('Syncing YouTube…');
+      const res = await fetch(`https://www.googleapis.com/youtube/v3/channels?part=statistics&id=${cfg.channelId}&key=${cfg.token}`);
+      if(!res.ok) throw new Error('YouTube API error '+res.status);
+      const data = await res.json();
+      const stats = data.items && data.items[0] && data.items[0].statistics;
+      if(stats){
+        state.metrics.YouTube.followers = Number(stats.subscriberCount);
+        state.metrics.YouTube.verified = true;
+        cfg.lastSync = Date.now();
+        saveState(); renderAnalytics(); renderOverview(); renderIntegrations(); renderCharts();
+        toast(`YouTube synced — ${fmt(Number(stats.subscriberCount))} subscribers`);
+        return;
+      }
+      throw new Error('No channel data returned — check the channel ID');
+    }catch(err){
+      console.error(err);
+      toast('YouTube sync failed: '+err.message, true);
+      return;
+    }
+  }
+
+  // Everything else routes through the proxy Worker, since these platforms
+  // block direct browser calls and their tokens live in the Worker's secrets.
+  if(!state.proxyBaseUrl){
+    toast('Set your Proxy Server URL above first', true);
+    return;
+  }
+  try{
+    toast('Syncing '+cfg.name+' via proxy…');
+    const res = await fetch(`${state.proxyBaseUrl}/${key}`);
+    if(!res.ok) throw new Error('Proxy returned '+res.status);
+    const data = await res.json();
+
+    if(key === 'sprout'){
+      // Expected shape from your own Sprout integration in the Worker:
+      // { metricsByPlatform: {...}, bestTimeToPost: "..." }
+      cfg.metrics = data.metricsByPlatform || cfg.metrics;
+      cfg.bestTime = data.bestTimeToPost || cfg.bestTime;
+      renderEfficiencyTable(); renderBestTimeCard();
+    }
+    // Other platforms (meta/instagram/tiktok/linkedin/ga4): store the raw
+    // response for now — wire up specific metric mapping here once you've
+    // confirmed the exact fields your Worker route returns for each.
+    cfg.lastRaw = data;
+    cfg.lastSync = Date.now();
+    saveState(); renderIntegrations();
+    toast(cfg.name+' synced via proxy');
+  }catch(err){
+    console.error(err);
+    cfg.lastSync = Date.now();
+    saveState(); renderIntegrations();
+    toast(cfg.name+' sync failed: '+err.message+' — check your Worker is deployed and the route/secrets are set', true);
+  }
+}
+
+/* ==================================================================
+   COMMUNITY / SOCIAL LISTENING
+================================================================== */
+let sentimentFilter = 'all';
+function renderCommunity(){
+  const pos = state.comments.filter(c=>c.sentiment==='Positive').length;
+  const neu = state.comments.filter(c=>c.sentiment==='Neutral').length;
+  const neg = state.comments.filter(c=>c.sentiment==='Negative').length;
+  document.getElementById('communityMetrics').innerHTML =
+    renderMetricCard('Total Comments Logged', state.comments.length, null, '💬') +
+    renderMetricCard('Positive', pos, state.comments.length ? Math.round(pos/state.comments.length*100)+'% of total' : null, '🟢') +
+    renderMetricCard('Neutral', neu, null, '⚪') +
+    renderMetricCard('Negative', neg, neg ? 'Worth a follow-up reply' : null, '🔴');
+
+  const rows = state.comments
+    .filter(c=> sentimentFilter==='all' || c.sentiment===sentimentFilter)
+    .sort((a,b)=> new Date(b.date)-new Date(a.date));
+  document.getElementById('commentsEmpty').style.display = rows.length ? 'none' : 'block';
+  document.getElementById('commentsList').innerHTML = rows.map(c=>`
+    <div class="comment-card">
+      <div class="comment-head">
+        <span class="badge badge-platform">${c.platform}</span>
+        <span class="comment-user">${escapeHtml(c.user)}</span>
+        <span class="badge badge-sentiment-${c.sentiment}">${c.sentiment}</span>
+        <span class="hint" style="margin-left:auto;">${c.date||''}</span>
+      </div>
+      <div>${escapeHtml(c.text)}</div>
+    </div>`).join('');
+}
+document.querySelectorAll('#sentimentFilter .chip').forEach(chip=>{
+  chip.addEventListener('click', ()=>{
+    document.querySelectorAll('#sentimentFilter .chip').forEach(c=>c.classList.remove('active'));
+    chip.classList.add('active');
+    sentimentFilter = chip.dataset.sentiment;
+    renderCommunity();
+  });
+});
+document.getElementById('addCommentBtn').addEventListener('click', ()=>{
+  const text = document.getElementById('cmText').value.trim();
+  if(!text){ toast('Add the comment text first', true); return; }
+  state.comments.push({
+    id: uid(),
+    platform: document.getElementById('cmPlatform').value,
+    user: document.getElementById('cmUser').value.trim() || '@unknown',
+    sentiment: document.getElementById('cmSentiment').value,
+    text,
+    date: new Date().toISOString().slice(0,10)
+  });
+  document.getElementById('cmText').value = '';
+  document.getElementById('cmUser').value = '';
+  saveState(); renderCommunity();
+  toast('Comment logged');
+});
+
+/* ==================================================================
+   TASK / SPRINT BOARD
+================================================================== */
+function renderTasks(){
+  const open = state.tasks.filter(t=>t.status==='Open').length;
+  const review = state.tasks.filter(t=>t.status==='In Review').length;
+  const done = state.tasks.filter(t=>t.status==='Done').length;
+  const velocity = state.tasks.length ? Math.round(done/state.tasks.length*100) : 0;
+  document.getElementById('taskMetrics').innerHTML =
+    renderMetricCard('Open Tasks', open, null, '📋') +
+    renderMetricCard('In Review', review, null, '👀') +
+    renderMetricCard('Completed', done, null, '✅') +
+    renderMetricCard('Sprint Velocity', velocity+'%', 'Completed ÷ total tasks', '📈');
+
+  const tbody = document.getElementById('tasksTable');
+  document.getElementById('tasksEmpty').style.display = state.tasks.length ? 'none' : 'block';
+  tbody.innerHTML = [...state.tasks].sort((a,b)=>(a.due||'9999').localeCompare(b.due||'9999')).map(t=>`<tr>
+    <td>${escapeHtml(t.title)}</td>
+    <td>${escapeHtml(t.owner)}</td>
+    <td>
+      <select data-taskstatus="${t.id}">
+        <option ${t.status==='Open'?'selected':''}>Open</option>
+        <option ${t.status==='In Review'?'selected':''}>In Review</option>
+        <option ${t.status==='Done'?'selected':''}>Done</option>
+      </select>
+    </td>
+    <td class="mono">${t.due||'—'}</td>
+    <td><button class="btn btn-sm btn-ghost" data-deltask="${t.id}">Delete</button></td>
+  </tr>`).join('');
+
+  tbody.querySelectorAll('[data-taskstatus]').forEach(sel=>{
+    sel.addEventListener('change', ()=>{
+      const t = state.tasks.find(x=>x.id===sel.dataset.taskstatus);
+      const prev = t.status;
+      t.status = sel.value;
+      logAudit(t.owner, 'Task status changed', t.title, `${prev} → ${t.status}`);
+      saveState(); renderTasks(); renderAuditLog();
+    });
+  });
+  tbody.querySelectorAll('[data-deltask]').forEach(btn=>{
+    btn.addEventListener('click', ()=>{
+      const t = state.tasks.find(x=>x.id===btn.dataset.deltask);
+      logAudit('You', 'Deleted task', t.title, '');
+      state.tasks = state.tasks.filter(x=>x.id!==btn.dataset.deltask);
+      saveState(); renderTasks(); renderAuditLog();
+    });
+  });
+}
+document.getElementById('addTaskBtn').addEventListener('click', ()=>{
+  const title = document.getElementById('tkTitle').value.trim();
+  if(!title){ toast('Give the task a title', true); return; }
+  const owner = document.getElementById('tkOwner').value.trim() || 'Unassigned';
+  const task = { id: uid(), title, owner, status: document.getElementById('tkStatus').value, due: document.getElementById('tkDue').value };
+  state.tasks.push(task);
+  logAudit(owner, 'Created task', title, '');
+  document.getElementById('tkTitle').value=''; document.getElementById('tkOwner').value=''; document.getElementById('tkDue').value='';
+  saveState(); renderTasks(); renderAuditLog();
+  toast('Task added');
+});
+
+/* ==================================================================
+   AUDIT LOG
+================================================================== */
+function renderAuditLog(){
+  document.getElementById('auditLogEmpty').style.display = state.auditLog.length ? 'none' : 'block';
+  document.getElementById('auditLogTable').innerHTML = state.auditLog.slice(0,200).map(e=>`<tr>
+    <td class="mono">${new Date(e.ts).toLocaleString()}</td>
+    <td>${escapeHtml(e.actor)}</td>
+    <td><strong>${escapeHtml(e.action)}</strong></td>
+    <td style="max-width:280px;">${escapeHtml(e.target)}</td>
+    <td class="hint">${escapeHtml(e.details)}</td>
+  </tr>`).join('');
+}
+
+/* ==================================================================
+   LEADERSHIP REPORT
+================================================================== */
+document.getElementById('generateReportBtn').addEventListener('click', ()=>{
+  const published = state.content.filter(c=>c.status==='Posted');
+  const pending = state.content.filter(c=>c.approval.decision==='pending');
+  const top = [...state.content].filter(c=>typeof c.reach==='number').sort((a,b)=>b.reach-a.reach).slice(0,5);
+  const win = window.open('', '_blank');
+  win.document.write(`
+    <html><head><title>OneUnited Suite — Leadership Report</title>
+    <style>
+      body{font-family:Georgia,serif; padding:40px; color:#1a1d24; max-width:800px; margin:0 auto;}
+      h1{font-size:24px; border-bottom:3px solid #9c2b3c; padding-bottom:10px;}
+      h2{font-size:16px; color:#9c2b3c; margin-top:28px;}
+      table{width:100%; border-collapse:collapse; margin-top:10px;}
+      td,th{border:1px solid #ccc; padding:6px 10px; font-size:13px; text-align:left;}
+      .metrics{display:flex; gap:20px; margin-top:12px;}
+      .metric{border:1px solid #ccc; padding:12px 16px; border-radius:6px;}
+      .metric b{font-size:22px; display:block;}
+      .footer{margin-top:30px; font-size:11px; color:#888;}
+    </style></head><body>
+    <h1>OneUnited Bank — Marketing &amp; Content Report</h1>
+    <p>Generated ${new Date().toLocaleString()}</p>
+    <h2>Audience</h2>
+    <div class="metrics">
+      ${Object.entries(state.metrics).map(([k,m])=>`<div class="metric"><b>${fmt(m.followers)}</b>${k} followers</div>`).join('')}
+    </div>
+    <h2>Content Activity</h2>
+    <p>${published.length} pieces published · ${pending.length} awaiting approval · ${state.content.length} total in pipeline</p>
+    <h2>Top Performing Content</h2>
+    <table><tr><th>Platform</th><th>Content</th><th>Actual Reach</th></tr>
+      ${top.map(c=>`<tr><td>${c.platform}</td><td>${c.caption.replace(/</g,'&lt;')}</td><td>${fmt(c.reach)}</td></tr>`).join('') || '<tr><td colspan="3">No actual-reach data logged yet.</td></tr>'}
+    </table>
+    <h2>Task / Sprint Status</h2>
+    <p>${state.tasks.filter(t=>t.status==='Open').length} open · ${state.tasks.filter(t=>t.status==='In Review').length} in review · ${state.tasks.filter(t=>t.status==='Done').length} done</p>
+    <h2>Community Sentiment</h2>
+    <p>${state.comments.filter(c=>c.sentiment==='Positive').length} positive · ${state.comments.filter(c=>c.sentiment==='Neutral').length} neutral · ${state.comments.filter(c=>c.sentiment==='Negative').length} negative (${state.comments.length} comments logged)</p>
+    <div class="footer">OneUnited Suite Command Console — data as stored in this browser at time of generation.</div>
+    </body></html>
+  `);
+  win.document.close();
+  setTimeout(()=> win.print(), 400);
+});
+
+/* ==================================================================
+   RESET
+================================================================== */
+document.getElementById('resetDataBtn').addEventListener('click', ()=>{
+  if(!confirm('Reset all local data back to the seeded demo dataset? This clears your planner, agents, and connections stored in this browser.')) return;
+  state = structuredClone(DEFAULT_STATE);
+  saveState(); renderAll();
+  toast('Demo data reset');
+});
+
+/* ==================================================================
+   INIT
+================================================================== */
+function renderAll(){
+  applyTheme();
+  renderOverview();
+  renderAnalytics();
+  renderPlanner();
+  renderApprovals();
+  renderCommunity();
+  renderTasks();
+  renderAuditLog();
+  renderAgents();
+  renderIntegrations();
+  setTimeout(renderCharts, 60);
+}
+renderAll();
+</script>
+</body>
+</html>
